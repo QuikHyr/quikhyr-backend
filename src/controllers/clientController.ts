@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase-admin/firestore";
 import Client from "../models/clientModel";
 import { db } from "../firebase";
 
@@ -14,8 +15,8 @@ export const createClient = async (clientData: Client) => {
       gender: clientData?.gender,
       address: clientData?.address,
       pincode: clientData?.pincode,
-      createdAt: clientData?.createdAt,
-      updatedAt: clientData?.updatedAt,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     };
 
     await docRef.set(client);
@@ -27,7 +28,6 @@ export const createClient = async (clientData: Client) => {
     return null;
   }
 };
-
 
 export const getClient = async (id: string) => {
   try {
@@ -68,7 +68,7 @@ export const updateClient = async (id: string, clientData: Partial<Client>) => {
     const updatedClient = {
       ...currentData,
       ...clientData,
-      updatedAt: new Date().toISOString(),
+      updatedAt: Timestamp.now(),
     };
 
     await docRef.set(updatedClient, { merge: true });
@@ -84,7 +84,7 @@ export const updateClient = async (id: string, clientData: Partial<Client>) => {
 export const deleteClient = async (id: string) => {
   try {
     const docRef = db?.collection("clients")?.doc(id);
-    
+
     await docRef.delete();
     console.log("Client updated successfully!");
 
