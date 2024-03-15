@@ -19,3 +19,6 @@ package-lock.json
 
 # IDE-specific files
 .vscode/
+
+# Firebase credentials
+serviceAccountKey.json
