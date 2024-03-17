@@ -1,6 +1,7 @@
 import express, { Express, Response } from "express";
 import cors from "cors";
 import clientRouter from "./routes/clientRoute";
+import workerRouter from "./routes/workerRoute";
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 
 // API Routes
 app.use("/api/clients", clientRouter);
+app.use("/api/workers", workerRouter);
 
 app.use((err: any, res: Response) => {
   res?.status(err?.statusCode || 500)?.json({

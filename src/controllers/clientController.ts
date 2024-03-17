@@ -1,6 +1,9 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
-import { Client, ClientBasicInfo } from "../types/client";
+import {
+  User as Client,
+  UserBasicInfo as ClientBasicInfo,
+} from "../types/user";
 
 // Create a new client
 export const createClient = async (
