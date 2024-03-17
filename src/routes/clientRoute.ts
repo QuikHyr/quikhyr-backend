@@ -1,13 +1,16 @@
 import { Router } from "express";
 import {
   createClient,
-  deleteClient,
-  getClient,
-  updateClient,
+  deleteClientById,
+  getClientBasicInfoById,
+  getClientById,
+  getClients,
+  updateClientById,
 } from "../controllers/clientController";
 
 const clientRouter = Router();
 
+// Create a new client
 clientRouter.post("/", async (req, res) => {
   try {
     const client = await createClient(req.body);
@@ -22,9 +25,10 @@ clientRouter.post("/", async (req, res) => {
   }
 });
 
-clientRouter.get("/:id", async (req, res) => {
+// Get all clients
+clientRouter.get("/", async (req, res) => {
   try {
-    const client = await getClient(req.params?.id);
+    const client = await getClients();
 
     if (client) {
       res.status(200).json(client);
@@ -36,9 +40,40 @@ clientRouter.get("/:id", async (req, res) => {
   }
 });
 
+// Get a client by ID
+clientRouter.get("/:id", async (req, res) => {
+  try {
+    const client = await getClientById(req.params?.id);
+
+    if (client) {
+      res.status(200).json(client);
+    } else {
+      res.status(404).send("Client not found!");
+    }
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Get client's basic info by ID
+clientRouter.get("/:id/basic-info", async (req, res) => {
+  try {
+    const client = await getClientBasicInfoById(req.params?.id);
+
+    if (client) {
+      res.status(200).json(client);
+    } else {
+      res.status(404).send("Client not found!");
+    }
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Update a client by ID
 clientRouter.put("/:id", async (req, res) => {
   try {
-    const updatedClient = await updateClient(req.params?.id, req.body);
+    const updatedClient = await updateClientById(req.params?.id, req.body);
 
     if (updatedClient) {
       res.status(200).json(updatedClient);
@@ -50,12 +85,13 @@ clientRouter.put("/:id", async (req, res) => {
   }
 });
 
+// Delete a client by ID
 clientRouter.delete("/:id", async (req, res) => {
   try {
-    const client = await deleteClient(req.params?.id);
+    const deletedClient = await deleteClientById(req.params?.id);
 
-    if (client) {
-      res.status(200).send("Client deleted!");
+    if (deletedClient) {
+      res.status(200).send("Client deleted successfully!");
     } else {
       res.status(404).send("Client not found!");
     }
