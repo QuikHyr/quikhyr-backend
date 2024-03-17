@@ -1,6 +1,6 @@
 import { Location, Timestamps } from "./global";
 
-export interface Client {
+export interface User {
   name: string;
   age?: number;
   avatar?: string;
@@ -12,7 +12,7 @@ export interface Client {
   timestamps: Timestamps;
 }
 
-export interface ClientBasicInfo {
+export interface UserBasicInfo {
   name: string;
   avatar?: string;
   pincode: string;
