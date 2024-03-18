@@ -98,7 +98,7 @@ export const updateWorkerById = async (
       ...workerData,
       timestamps: { updatedAt: Timestamp.now() },
     });
-    console.log("Worker updated successfully!");
+    console.log(`Worker with ID: ${id} updated successfully!`);
 
     return workerData;
   } catch (error) {
@@ -113,7 +113,7 @@ export const deleteWorkerById = async (id: string): Promise<boolean | null> => {
     const workerRef = db?.collection("workers")?.doc(id);
 
     await workerRef.delete();
-    console.log("Worker deleted successfully!");
+    console.log(`Worker with ID: ${id} updated successfully!`);
 
     return true;
   } catch (error) {

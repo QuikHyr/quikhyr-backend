@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Subservice } from "../types/subservice";
 
@@ -7,15 +7,40 @@ export const createSubservice = async (
   subserviceData: Subservice
 ): Promise<Subservice | null> => {
   try {
+    // Check if the associated serviceId is provided
+    if (!subserviceData?.serviceId || subserviceData?.serviceId === "") {
+      throw new Error("Service ID associated is required!");
+    }
+
+    if (!subserviceData?.serviceId || subserviceData?.serviceId === "") {
+      throw new Error("Service ID associated is required!");
+    }
+    
+    // // Check if the associated service ID exists
+    // const serviceSnapshot = await serviceRef.get();
+    // if (!serviceSnapshot?.exists) {
+    //   throw new Error(
+    //     `Service with ID: ${subserviceData?.serviceId} does not exist.`
+    //   );
+    // }
+
     const subserviceRef = db?.collection("subservices")?.doc();
 
     const subservice: Subservice = {
       ...subserviceData,
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
-
+    
     await subserviceRef.set(subservice);
     console.log("Subservice created successfully!");
+    
+    // Add subservice's ID to its associated service's subservices array
+    const serviceRef = db
+      ?.collection("services")
+      ?.doc(subserviceData?.serviceId);
+    await serviceRef.update({
+      subservices: FieldValue.arrayUnion(subserviceRef.id),
+    });
 
     return subservice;
   } catch (error) {
@@ -67,13 +92,45 @@ export const updateSubserviceById = async (
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
 
+    // Fetch currently associated serviceId
+    const subserviceSnapshot = await subserviceRef.get();
+    const currentServiceId = subserviceSnapshot.get("serviceId");
+
+    if (
+      subserviceData?.serviceId &&
+      subserviceData?.serviceId !== currentServiceId
+    ) {
+      // // Check if the updated service ID exists
+      // const serviceSnapshot = await newServiceRef.get();
+      // if (!serviceSnapshot?.exists) {
+      //   throw new Error(
+      //     `Service with ID: ${subserviceData?.serviceId} does not exist.`
+      //   );
+      // }
+
+      // Remove the subservice ID from the previously associated service's subservices array
+      const oldServiceRef = db?.collection("services").doc(currentServiceId);
+      await oldServiceRef.update({
+        subservices: FieldValue.arrayRemove(id),
+      });
+
+      // Add the subservice ID to the newly updated serviceId service's subservices array
+      const newServiceRef = db
+        ?.collection("services")
+        ?.doc(subserviceData?.serviceId);
+      await newServiceRef.update({
+        subservices: FieldValue.arrayUnion(id),
+      });
+    }
+
+    // Update the subservice
     await subserviceRef.update({
       ...subserviceData,
       timestamps: {
         updatedAt: Timestamp.now(),
       },
     });
-    console.log("Subservice updated successfully!");
+    console.log(`Subservice with ID: ${id} updated successfully!`);
 
     return subserviceData;
   } catch (error) {
@@ -87,8 +144,18 @@ export const deleteSubserviceById = async (id: string): Promise<boolean> => {
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
 
+    // Fetch currently associated serviceId
+    const subserviceSnapshot = await subserviceRef.get();
+    const serviceId = subserviceSnapshot.get("serviceId");
+
+    // Remove the subservice ID from the associated service's subservices array
+    const serviceRef = db?.collection("services").doc(serviceId);
+    await serviceRef.update({
+      subservices: FieldValue.arrayRemove(id),
+    });
+
     await subserviceRef.delete();
-    console.log("Subservice deleted successfully!");
+    console.log(`Subservice with ID: ${id} deleted successfully!`);
 
     return true;
   } catch (error) {

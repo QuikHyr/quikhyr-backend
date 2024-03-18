@@ -100,7 +100,7 @@ export const updateClientById = async (
       ...clientData,
       timestamps: { updatedAt: Timestamp.now() },
     });
-    console.log("Client updated successfully!");
+    console.log(`Client with ID: ${id} updated successfully!`);
 
     return clientData;
   } catch (error) {
@@ -115,7 +115,7 @@ export const deleteClientById = async (id: string): Promise<boolean | null> => {
     const clientRef = db?.collection("clients")?.doc(id);
 
     await clientRef.delete();
-    console.log("Client deleted successfully!");
+    console.log(`Client with ID: ${id} deleted successfully!`);
 
     return true;
   } catch (error) {
