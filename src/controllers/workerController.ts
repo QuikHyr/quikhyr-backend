@@ -7,14 +7,14 @@ export const createWorker = async (
   workerData: Worker
 ): Promise<Worker | null> => {
   try {
-    const docRef = db?.collection("workers")?.doc();
+    const workerRef = db?.collection("workers")?.doc();
 
     const worker: Worker = {
       ...workerData,
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
-    await docRef.set(worker);
+    await workerRef.set(worker);
     console.log("Worker created successfully!");
 
     return worker;
@@ -40,8 +40,8 @@ export const getWorkers = async (): Promise<string[] | null> => {
 // Get a worker by ID
 export const getWorkerById = async (id: string): Promise<Worker | null> => {
   try {
-    const docRef = db?.collection("workers")?.doc(id);
-    const worker = await docRef.get();
+    const workerRef = db?.collection("workers")?.doc(id);
+    const worker = await workerRef.get();
 
     if (worker?.exists) {
       return worker?.data() as Worker;
@@ -78,7 +78,7 @@ export const getWorkerBasicInfoById = async (
 
       return basicInfo;
     } else {
-      console.log("Worker not found!");
+      console.log("No such worker!");
       return null;
     }
   } catch (error) {
@@ -91,29 +91,16 @@ export const getWorkerBasicInfoById = async (
 export const updateWorkerById = async (
   id: string,
   workerData: Partial<Worker>
-): Promise<Worker | null> => {
+): Promise<Partial<Worker> | null> => {
   try {
-    const docRef = db?.collection("workers")?.doc(id);
-    const currentData = (await docRef.get()).data() as Worker | undefined;
-
-    if (!currentData) {
-      console.log("No such worker!");
-      return null;
-    }
-
-    const updatedClient: Worker = {
-      ...currentData,
+    const workerRef = db?.collection("workers")?.doc(id);
+    await workerRef.update({
       ...workerData,
-      timestamps: {
-        ...currentData.timestamps,
-        updatedAt: Timestamp.now(),
-      },
-    };
-
-    await docRef.set(updatedClient, { merge: true });
+      timestamps: { updatedAt: Timestamp.now() },
+    });
     console.log("Worker updated successfully!");
 
-    return updatedClient;
+    return workerData;
   } catch (error) {
     console.error("Error updating worker:", error);
     return null;
@@ -123,9 +110,9 @@ export const updateWorkerById = async (
 // Delete a worker by ID
 export const deleteWorkerById = async (id: string): Promise<boolean | null> => {
   try {
-    const docRef = db?.collection("workers")?.doc(id);
+    const workerRef = db?.collection("workers")?.doc(id);
 
-    await docRef.delete();
+    await workerRef.delete();
     console.log("Worker deleted successfully!");
 
     return true;

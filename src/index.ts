@@ -2,6 +2,7 @@ import express, { Express, Response } from "express";
 import cors from "cors";
 import clientRouter from "./routes/clientRoute";
 import workerRouter from "./routes/workerRoute";
+import subserviceRouter from "./routes/subserviceRoute";
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
@@ -19,7 +20,7 @@ app.get("/", (req, res) => {
         <ul style="list-style-type: none; padding: 0;">
           <li style="margin-bottom: 10px;">GET /api/clients</li>
           <li style="margin-bottom: 10px;">GET /api/workers</li>
-          <li style="margin-bottom: 10px;">GET /api/homeowners</li>
+          <li style="margin-bottom: 10px;">GET /api/subservices</li>
         </ul>
       </div>
     </div>
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 // API Routes
 app.use("/api/clients", clientRouter);
 app.use("/api/workers", workerRouter);
+app.use("/api/subservices", subserviceRouter);
 
 app.use((err: any, res: Response) => {
   res?.status(err?.statusCode || 500)?.json({

@@ -10,14 +10,14 @@ export const createClient = async (
   clientData: Client
 ): Promise<Client | null> => {
   try {
-    const docRef = db?.collection("clients")?.doc();
+    const clientRef = db?.collection("clients")?.doc();
 
     const client: Client = {
       ...clientData,
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
-    await docRef.set(client);
+    await clientRef.set(client);
     console.log("Client created successfully!");
 
     return client;
@@ -43,8 +43,8 @@ export const getClients = async (): Promise<string[] | null> => {
 // Get a client by ID
 export const getClientById = async (id: string): Promise<Client | null> => {
   try {
-    const docRef = db?.collection("clients")?.doc(id);
-    const client = await docRef.get();
+    const clientRef = db?.collection("clients")?.doc(id);
+    const client = await clientRef.get();
 
     if (client?.exists) {
       return client?.data() as Client;
@@ -80,7 +80,7 @@ export const getClientBasicInfoById = async (
 
       return basicInfo;
     } else {
-      console.log("Client not found!");
+      console.log("No such client!");
       return null;
     }
   } catch (error) {
@@ -93,29 +93,16 @@ export const getClientBasicInfoById = async (
 export const updateClientById = async (
   id: string,
   clientData: Partial<Client>
-): Promise<Client | null> => {
+): Promise<Partial<Client> | null> => {
   try {
-    const docRef = db?.collection("clients")?.doc(id);
-    const currentData = (await docRef.get()).data() as Client | undefined;
-
-    if (!currentData) {
-      console.log("No such client!");
-      return null;
-    }
-
-    const updatedClient: Client = {
-      ...currentData,
+    const clientRef = db?.collection("clients")?.doc(id);
+    await clientRef.update({
       ...clientData,
-      timestamps: {
-        ...currentData.timestamps,
-        updatedAt: Timestamp.now(),
-      },
-    };
-
-    await docRef.set(updatedClient, { merge: true });
+      timestamps: { updatedAt: Timestamp.now() },
+    });
     console.log("Client updated successfully!");
 
-    return updatedClient;
+    return clientData;
   } catch (error) {
     console.error("Error updating client:", error);
     return null;
@@ -125,9 +112,9 @@ export const updateClientById = async (
 // Delete a client by ID
 export const deleteClientById = async (id: string): Promise<boolean | null> => {
   try {
-    const docRef = db?.collection("clients")?.doc(id);
+    const clientRef = db?.collection("clients")?.doc(id);
 
-    await docRef.delete();
+    await clientRef.delete();
     console.log("Client deleted successfully!");
 
     return true;

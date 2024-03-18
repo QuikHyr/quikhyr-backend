@@ -18,7 +18,7 @@ clientRouter.post("/", async (req, res) => {
     if (client) {
       res.status(201).json(client);
     } else {
-      res.status(400).send("Error creating client");
+      res.status(400).send("Error creating client!");
     }
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -33,7 +33,7 @@ clientRouter.get("/", async (req, res) => {
     if (client) {
       res.status(200).json(client);
     } else {
-      res.status(404).send("Client not found!");
+      res.status(404).send("No clients found!");
     }
   } catch (error) {
     res.status(500).send("Internal Server Error");

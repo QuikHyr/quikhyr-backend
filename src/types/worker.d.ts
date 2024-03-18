@@ -3,6 +3,7 @@ import { User, UserBasicInfo } from "./user";
 
 export interface Worker extends User {
   available: boolean;
+  subservices: string[];
 }
 
 export interface WorkerBasicInfo extends UserBasicInfo {

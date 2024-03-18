@@ -18,7 +18,7 @@ workerRouter.post("/", async (req, res) => {
     if (worker) {
       res.status(201).json(worker);
     } else {
-      res.status(400).send("Error creating worker");
+      res.status(400).send("Error creating worker!");
     }
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -33,7 +33,7 @@ workerRouter.get("/", async (req, res) => {
     if (worker) {
       res.status(200).json(worker);
     } else {
-      res.status(404).send("Worker not found!");
+      res.status(404).send("No workers found!");
     }
   } catch (error) {
     res.status(500).send("Internal Server Error");
