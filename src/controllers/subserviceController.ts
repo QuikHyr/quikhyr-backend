@@ -7,22 +7,10 @@ export const createSubservice = async (
   subserviceData: Subservice
 ): Promise<Subservice | null> => {
   try {
-    // Check if the associated serviceId is provided
+    // Make sure the associated serviceId is provided
     if (!subserviceData?.serviceId || subserviceData?.serviceId === "") {
       throw new Error("Service ID associated is required!");
     }
-
-    if (!subserviceData?.serviceId || subserviceData?.serviceId === "") {
-      throw new Error("Service ID associated is required!");
-    }
-    
-    // // Check if the associated service ID exists
-    // const serviceSnapshot = await serviceRef.get();
-    // if (!serviceSnapshot?.exists) {
-    //   throw new Error(
-    //     `Service with ID: ${subserviceData?.serviceId} does not exist.`
-    //   );
-    // }
 
     const subserviceRef = db?.collection("subservices")?.doc();
 
@@ -100,14 +88,6 @@ export const updateSubserviceById = async (
       subserviceData?.serviceId &&
       subserviceData?.serviceId !== currentServiceId
     ) {
-      // // Check if the updated service ID exists
-      // const serviceSnapshot = await newServiceRef.get();
-      // if (!serviceSnapshot?.exists) {
-      //   throw new Error(
-      //     `Service with ID: ${subserviceData?.serviceId} does not exist.`
-      //   );
-      // }
-
       // Remove the subservice ID from the previously associated service's subservices array
       const oldServiceRef = db?.collection("services").doc(currentServiceId);
       await oldServiceRef.update({
