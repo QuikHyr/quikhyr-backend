@@ -4,6 +4,7 @@ import clientRouter from "./routes/clientRoute";
 import workerRouter from "./routes/workerRoute";
 import subserviceRouter from "./routes/subserviceRoute";
 import serviceRouter from "./routes/serviceRoute";
+import { errorHandler } from "./middlewares/errorHandler";
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
@@ -35,11 +36,7 @@ app.use("/api/workers", workerRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/subservices", subserviceRouter);
 
-app.use((err: any, res: Response) => {
-  res?.status(err?.statusCode || 500)?.json({
-    message: err?.message || "Internal Server Error",
-  });
-});
+app.use(errorHandler);
 
 // Server Listening
 app.listen(port, () =>

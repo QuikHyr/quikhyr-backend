@@ -11,7 +11,7 @@ import {
 const clientRouter = Router();
 
 // Create a new client
-clientRouter.post("/", async (req, res) => {
+clientRouter.post("/", async (req, res, next) => {
   try {
     const client = await createClient(req.body);
 
@@ -21,12 +21,12 @@ clientRouter.post("/", async (req, res) => {
       res.status(400).send("Error creating client!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get all clients
-clientRouter.get("/", async (req, res) => {
+clientRouter.get("/", async (req, res, next) => {
   try {
     const client = await getClients();
 
@@ -36,12 +36,12 @@ clientRouter.get("/", async (req, res) => {
       res.status(404).send("No clients found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get a client by ID
-clientRouter.get("/:id", async (req, res) => {
+clientRouter.get("/:id", async (req, res, next) => {
   try {
     const client = await getClientById(req.params?.id);
 
@@ -51,12 +51,12 @@ clientRouter.get("/:id", async (req, res) => {
       res.status(404).send("Client not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get client's basic info by ID
-clientRouter.get("/:id/basic-info", async (req, res) => {
+clientRouter.get("/:id/basic-info", async (req, res, next) => {
   try {
     const client = await getClientBasicInfoById(req.params?.id);
 
@@ -66,12 +66,12 @@ clientRouter.get("/:id/basic-info", async (req, res) => {
       res.status(404).send("Client not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Update a client by ID
-clientRouter.put("/:id", async (req, res) => {
+clientRouter.put("/:id", async (req, res, next) => {
   try {
     const updatedClient = await updateClientById(req.params?.id, req.body);
 
@@ -81,12 +81,12 @@ clientRouter.put("/:id", async (req, res) => {
       res.status(404).send("Client not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Delete a client by ID
-clientRouter.delete("/:id", async (req, res) => {
+clientRouter.delete("/:id", async (req, res, next) => {
   try {
     const deletedClient = await deleteClientById(req.params?.id);
 
@@ -96,7 +96,7 @@ clientRouter.delete("/:id", async (req, res) => {
       res.status(404).send("Client not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 

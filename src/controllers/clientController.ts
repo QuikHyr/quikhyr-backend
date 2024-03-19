@@ -4,13 +4,17 @@ import {
   User as Client,
   UserBasicInfo as ClientBasicInfo,
 } from "../types/user";
+import { validateClient } from "../validators/clientValidator";
+import { CustomError } from "../../errors";
 
 // Create a new client
 export const createClient = async (
   clientData: Client
 ): Promise<Client | null> => {
   try {
-    const clientRef = db?.collection("clients")?.doc();
+    validateClient(clientData);
+
+    const clientRef = db?.collection("clients")?.doc(clientData?.id);
 
     const client: Client = {
       ...clientData,
@@ -23,7 +27,7 @@ export const createClient = async (
     return client;
   } catch (error) {
     console.error("Error creating client:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -36,7 +40,7 @@ export const getClients = async (): Promise<string[] | null> => {
     return clients;
   } catch (error) {
     console.error("Error getting clients:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -54,7 +58,7 @@ export const getClientById = async (id: string): Promise<Client | null> => {
     }
   } catch (error) {
     console.error("Error getting client:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -85,7 +89,7 @@ export const getClientBasicInfoById = async (
     }
   } catch (error) {
     console.error("Error getting client's basic info:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -95,6 +99,12 @@ export const updateClientById = async (
   clientData: Partial<Client>
 ): Promise<Partial<Client> | null> => {
   try {
+    validateClient(clientData);
+
+    if (clientData?.id && clientData?.id !== id) {
+      throw new CustomError(`Field "id" cannot be updated!`, 400);
+    }
+
     const clientRef = db?.collection("clients")?.doc(id);
     await clientRef.update({
       ...clientData,
@@ -105,7 +115,7 @@ export const updateClientById = async (
     return clientData;
   } catch (error) {
     console.error("Error updating client:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -120,6 +130,6 @@ export const deleteClientById = async (id: string): Promise<boolean | null> => {
     return true;
   } catch (error) {
     console.error("Error deleting client:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
