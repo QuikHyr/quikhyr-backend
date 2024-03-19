@@ -12,7 +12,7 @@ export const createWorker = async (
       throw new Error("Subservices associated are required!");
     }
 
-    const workerRef = db?.collection("workers")?.doc();
+    const workerRef = db?.collection("workers")?.doc(workerData?.id);
 
     const worker: Worker = {
       ...workerData,
