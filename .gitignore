@@ -22,3 +22,6 @@ package-lock.json
 
 # Firebase credentials
 serviceAccountKey.json
+
+# Project Ideas
+ideas.txt
