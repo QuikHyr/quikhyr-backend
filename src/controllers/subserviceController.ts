@@ -16,8 +16,8 @@ export const createSubservice = async (
 
     const subservice: Subservice = {
       ...subserviceData,
-      id: subserviceRef?.id,
-      timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
+      // id: subserviceRef?.id,
+      // timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
     
     await subserviceRef.set(subservice);

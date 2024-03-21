@@ -11,8 +11,8 @@ export const createService = async (
 
     const service: Service = {
       ...serviceData,
-      id: serviceRef?.id,
-      timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
+      // id: serviceRef?.id,
+      // timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
     await serviceRef.set(service);
