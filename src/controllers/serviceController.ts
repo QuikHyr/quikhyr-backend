@@ -1,18 +1,17 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Service } from "../types/service";
+import { CustomError } from "../../errors";
 
 // Create a new service
 export const createService = async (
   serviceData: Service
-): Promise<Service | null> => {
+): Promise<Service> => {
   try {
     const serviceRef = db?.collection("services")?.doc();
 
     const service: Service = {
       ...serviceData,
-      // id: serviceRef?.id,
-      // timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
     await serviceRef.set(service);
@@ -21,7 +20,7 @@ export const createService = async (
     return service;
   } catch (error) {
     console.error("Error creating Service:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 

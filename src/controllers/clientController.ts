@@ -10,7 +10,7 @@ import { CustomError } from "../../errors";
 // Create a new client
 export const createClient = async (
   clientData: Client
-): Promise<Client | null> => {
+): Promise<Client> => {
   try {
     validateClient(clientData);
 
@@ -32,7 +32,7 @@ export const createClient = async (
 };
 
 // Get all clients
-export const getClients = async (): Promise<string[] | null> => {
+export const getClients = async (): Promise<string[]> => {
   try {
     const querySnapshot = await db?.collection("clients")?.get();
     const clients = querySnapshot?.docs.map((doc) => doc.id);
@@ -97,7 +97,7 @@ export const getClientBasicInfoById = async (
 export const updateClientById = async (
   id: string,
   clientData: Partial<Client>
-): Promise<Partial<Client> | null> => {
+): Promise<Partial<Client>> => {
   try {
     validateClient(clientData);
 
@@ -120,7 +120,7 @@ export const updateClientById = async (
 };
 
 // Delete a client by ID
-export const deleteClientById = async (id: string): Promise<boolean | null> => {
+export const deleteClientById = async (id: string): Promise<boolean> => {
   try {
     const clientRef = db?.collection("clients")?.doc(id);
 

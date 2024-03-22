@@ -11,7 +11,7 @@ import {
 const workerRouter = Router();
 
 // Create a new worker
-workerRouter.post("/", async (req, res) => {
+workerRouter.post("/", async (req, res, next) => {
   try {
     const worker = await createWorker(req.body);
 
@@ -21,12 +21,12 @@ workerRouter.post("/", async (req, res) => {
       res.status(400).send("Error creating worker!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get all workers
-workerRouter.get("/", async (req, res) => {
+workerRouter.get("/", async (req, res, next) => {
   try {
     const worker = await getWorkers();
 
@@ -36,12 +36,12 @@ workerRouter.get("/", async (req, res) => {
       res.status(404).send("No workers found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get a worker by ID
-workerRouter.get("/:id", async (req, res) => {
+workerRouter.get("/:id", async (req, res, next) => {
   try {
     const worker = await getWorkerById(req.params?.id);
 
@@ -51,12 +51,12 @@ workerRouter.get("/:id", async (req, res) => {
       res.status(404).send("Worker not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get worker's basic info by ID
-workerRouter.get("/:id/basic-info", async (req, res) => {
+workerRouter.get("/:id/basic-info", async (req, res, next) => {
   try {
     const worker = await getWorkerBasicInfoById(req.params?.id);
 
@@ -66,12 +66,12 @@ workerRouter.get("/:id/basic-info", async (req, res) => {
       res.status(404).send("Worker not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Update a worker by ID
-workerRouter.put("/:id", async (req, res) => {
+workerRouter.put("/:id", async (req, res, next) => {
   try {
     const updatedWorker = await updateWorkerById(req.params?.id, req.body);
 
@@ -81,12 +81,12 @@ workerRouter.put("/:id", async (req, res) => {
       res.status(404).send("Worker not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Delete a worker by ID
-workerRouter.delete("/:id", async (req, res) => {
+workerRouter.delete("/:id", async (req, res, next) => {
   try {
     const deletedWorker = await deleteWorkerById(req.params?.id);
 
@@ -96,7 +96,7 @@ workerRouter.delete("/:id", async (req, res) => {
       res.status(404).send("Worker not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 

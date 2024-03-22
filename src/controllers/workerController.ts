@@ -1,16 +1,13 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Worker, WorkerBasicInfo } from "../types/worker";
+import { CustomError } from "../../errors";
+import { validateWorker } from "../validators/workerValidator";
 
 // Create a new worker
-export const createWorker = async (
-  workerData: Worker
-): Promise<Worker | null> => {
+export const createWorker = async (workerData: Worker): Promise<Worker> => {
   try {
-    // Make sure the associated subservices are provided
-    if (!workerData?.subservices || workerData?.subservices?.length === 0) {
-      throw new Error("Subservices associated are required!");
-    }
+    validateWorker(workerData);
 
     const workerRef = db?.collection("workers")?.doc(workerData?.id);
 
@@ -35,12 +32,12 @@ export const createWorker = async (
     return worker;
   } catch (error) {
     console.error("Error creating worker:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
 // Get all workers
-export const getWorkers = async (): Promise<string[] | null> => {
+export const getWorkers = async (): Promise<string[]> => {
   try {
     const querySnapshot = await db?.collection("workers")?.get();
     const workers = querySnapshot?.docs.map((doc) => doc?.id);
@@ -48,7 +45,7 @@ export const getWorkers = async (): Promise<string[] | null> => {
     return workers;
   } catch (error) {
     console.error("Error getting workers:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -66,7 +63,7 @@ export const getWorkerById = async (id: string): Promise<Worker | null> => {
     }
   } catch (error) {
     console.error("Error getting worker:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -98,7 +95,7 @@ export const getWorkerBasicInfoById = async (
     }
   } catch (error) {
     console.error("Error getting worker's basic info:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -106,8 +103,10 @@ export const getWorkerBasicInfoById = async (
 export const updateWorkerById = async (
   id: string,
   workerData: Partial<Worker>
-): Promise<Partial<Worker> | null> => {
+): Promise<Partial<Worker>> => {
   try {
+    validateWorker(workerData);
+
     const workerRef = db?.collection("workers")?.doc(id);
 
     // Fetch currently associated subservices
@@ -157,12 +156,12 @@ export const updateWorkerById = async (
     return workerData;
   } catch (error) {
     console.error("Error updating worker:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
 // Delete a worker by ID
-export const deleteWorkerById = async (id: string): Promise<boolean | null> => {
+export const deleteWorkerById = async (id: string): Promise<boolean> => {
   try {
     const workerRef = db?.collection("workers")?.doc(id);
 
@@ -186,6 +185,6 @@ export const deleteWorkerById = async (id: string): Promise<boolean | null> => {
     return true;
   } catch (error) {
     console.error("Error deleting worker:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
