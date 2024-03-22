@@ -1,13 +1,13 @@
-import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Service } from "../types/service";
-import { CustomError } from "../../errors";
+import { CustomError } from "../errors";
+import { validateService } from "../validators/serviceValidator";
 
 // Create a new service
-export const createService = async (
-  serviceData: Service
-): Promise<Service> => {
+export const createService = async (serviceData: Service): Promise<Service> => {
   try {
+    validateService(serviceData);
+
     const serviceRef = db?.collection("services")?.doc();
 
     const service: Service = {
@@ -25,17 +25,17 @@ export const createService = async (
 };
 
 // Get all services
-export const getServices = async (): Promise<Service[] | null> => {
+export const getServices = async (): Promise<Service[]> => {
   try {
     const querySnapshot = await db?.collection("services")?.get();
     const services: Service[] = querySnapshot?.docs.map(
-      (doc) => doc.data() as Service
+      (doc: any) => doc.data() as Service
     );
 
     return services;
   } catch (error) {
     console.error("Error getting services:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -53,7 +53,7 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
     }
   } catch (error) {
     console.error("Error getting service:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -61,22 +61,21 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
 export const updateServiceById = async (
   id: string,
   serviceData: Partial<Service>
-): Promise<Partial<Service> | null> => {
+): Promise<Partial<Service>> => {
   try {
+    validateService(serviceData);
+
     const serviceRef = db?.collection("services")?.doc(id);
 
     await serviceRef.update({
       ...serviceData,
-      timestamps: {
-        updatedAt: Timestamp.now(),
-      },
     });
     console.log(`Service with ID: ${id} updated successfully!`);
 
     return serviceData;
   } catch (error) {
     console.error(`Error updating Service:`, error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -96,8 +95,8 @@ export const deleteServiceAndSubservicesById = async (
     // Delete associated subservices
     const subservicesSnapshot = await subservicesQuery?.get();
     const batch = db?.batch();
-    subservicesSnapshot.forEach((subserviceDoc) => {
-      batch.delete(subserviceDoc.ref);
+    subservicesSnapshot?.forEach((subserviceDoc: any) => {
+      batch?.delete(subserviceDoc?.ref);
     });
     await batch.commit();
 
@@ -108,6 +107,6 @@ export const deleteServiceAndSubservicesById = async (
     return true;
   } catch (error) {
     console.error(`Error deleting Service:`, error);
-    return false;
+    throw new CustomError(`${error}`, 400);
   }
 };

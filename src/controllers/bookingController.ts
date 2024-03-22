@@ -15,7 +15,6 @@ export const createBooking = async (
 
     const booking: Booking = {
       ...bookingData,
-      // id: bookingRef?.id,
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 

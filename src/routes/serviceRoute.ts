@@ -10,7 +10,7 @@ import {
 const serviceRouter = Router();
 
 // Create a new service
-serviceRouter.post("/", async (req, res) => {
+serviceRouter.post("/", async (req, res, next) => {
   try {
     const service = await createService(req.body);
 
@@ -20,12 +20,12 @@ serviceRouter.post("/", async (req, res) => {
       res.status(400).send("Error creating service");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get all services
-serviceRouter.get("/", async (req, res) => {
+serviceRouter.get("/", async (req, res, next) => {
   try {
     const services = await getServices();
 
@@ -35,12 +35,12 @@ serviceRouter.get("/", async (req, res) => {
       res.status(404).send("No services found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get a service by ID
-serviceRouter.get("/:id", async (req, res) => {
+serviceRouter.get("/:id", async (req, res, next) => {
   try {
     const service = await getServiceById(req.params?.id);
 
@@ -50,12 +50,12 @@ serviceRouter.get("/:id", async (req, res) => {
       res.status(404).send("Service not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Update a service by ID
-serviceRouter.put("/:id", async (req, res) => {
+serviceRouter.put("/:id", async (req, res, next) => {
   try {
     const updatedSubservice = await updateServiceById(req.params?.id, req.body);
 
@@ -65,24 +65,26 @@ serviceRouter.put("/:id", async (req, res) => {
       res.status(404).send("Service not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Delete a service and associated subservices by ID
-serviceRouter.delete("/:id", async (req, res) => {
+serviceRouter.delete("/:id", async (req, res, next) => {
   try {
     const deletedSubservice = await deleteServiceAndSubservicesById(
       req.params?.id
     );
 
     if (deletedSubservice) {
-      res.status(200).send("Service and associated subservices deleted successfully!");
+      res
+        .status(200)
+        .send("Service and associated subservices deleted successfully!");
     } else {
       res.status(404).send("Service not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
