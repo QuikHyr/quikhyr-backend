@@ -1,4 +1,4 @@
-import express, { Express, Response } from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import clientRouter from "./routes/clientRoute";
 import workerRouter from "./routes/workerRoute";
@@ -6,6 +6,7 @@ import subserviceRouter from "./routes/subserviceRoute";
 import serviceRouter from "./routes/serviceRoute";
 import { errorHandler } from "./middlewares/errorHandler";
 import bookingRouter from "./routes/bookingRoute";
+import ratingRouter from "./routes/ratingRoute";
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
           <li style="margin-bottom: 10px;">GET /api/services</li>
           <li style="margin-bottom: 10px;">GET /api/subservices</li>
           <li style="margin-bottom: 10px;">GET /api/bookings</li>
+          <li style="margin-bottom: 10px;">GET /api/ratings</li>
         </ul>
       </div>
     </div>
@@ -38,6 +40,7 @@ app.use("/api/workers", workerRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/subservices", subserviceRouter);
 app.use("/api/bookings", bookingRouter);
+app.use("/api/ratings", ratingRouter);
 
 app.use(errorHandler);
 

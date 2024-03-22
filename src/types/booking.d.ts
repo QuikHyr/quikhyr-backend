@@ -1,6 +1,11 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { Timestamps } from "./global";
 
+export interface CategorizedBookings {
+  currentBookings: Booking[];
+  pastBookings: Booking[];
+}
+
 export interface Booking {
   clientId: string;
   workerId: string;

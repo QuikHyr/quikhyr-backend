@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
-import { Booking } from "../types/booking";
+import { Booking, CategorizedBookings } from "../types/booking";
 import { validateBooking } from "../validators/bookingValidator";
 import { CustomError } from "../errors";
 
@@ -38,42 +38,29 @@ export const getBookings = async (
     }
 > => {
   try {
-    const query = await db?.collection("bookings");
+    let query: FirebaseFirestore.Query = db?.collection("bookings");
+
+    // Filter bookings by clientId or workerId, if provided
+    if (clientId) query = query?.where("clientId", "==", clientId);
+    if (workerId) query = query?.where("workerId", "==", workerId);
+
+    const querySnapshot = await query?.get();
 
     if (clientId || workerId) {
-      const filteredQuery = (await (clientId && workerId))
-        ? query
-            ?.where("clientId", "==", clientId)
-            ?.where("workerId", "==", workerId)
-        : clientId
-        ? query?.where("clientId", "==", clientId)
-        : query?.where("workerId", "==", workerId);
-
-      const currentBookingsQuery = filteredQuery
-        ?.where("status", "in", ["Pending", "Not Completed"])
-        ?.get();
-
-      const pastBookingsQuery = filteredQuery
-        ?.where("status", "==", "Completed")
-        ?.get();
-
-      const currentBookings: Booking[] = (await currentBookingsQuery)?.docs.map(
+      const currentBookings: Booking[] = querySnapshot?.docs?.map(
         (booking) => booking.data() as Booking
       );
 
-      const pastBookings: Booking[] = (await pastBookingsQuery)?.docs.map(
+      const pastBookings: Booking[] = querySnapshot?.docs.map(
         (booking) => booking.data() as Booking
       );
 
-      const response = {
+      const categorizedBookings = {
         currentBookings,
         pastBookings,
       };
 
-      return response as {
-        currentBookings: Booking[];
-        pastBookings: Booking[];
-      };
+      return categorizedBookings as CategorizedBookings;
     } else {
       const querySnapshot = await query?.get();
       const bookingIds = querySnapshot?.docs.map((booking) => booking?.id);

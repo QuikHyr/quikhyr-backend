@@ -27,25 +27,29 @@ const validateField: ValidationFunction = (field, value) => {
         throw new StringFieldError(field);
       }
       break;
+
     case "age":
       if (typeof value !== "number") {
         throw new NumberFieldError(field);
       }
       break;
+
     case "gender":
       if (!["Male", "Female", "Rather Not Say"].includes(value)) {
         throw new Error(
-          `Field "gender" must be either "Male", "Female", or "Rather Not Say".`
+          `Field '${field}' must be either "Male", "Female", or "Rather Not Say".`
         );
       }
       break;
+
     case "location":
       if (
+        typeof value !== "object" ||
         typeof value?.latitude !== "number" ||
         typeof value?.longitude !== "number"
       ) {
         throw new Error(
-          `Field "location" must be an object with latitude and longitude as numbers.`
+          `Field '${field}' must be an object with latitude and longitude as numbers.`
         );
       }
       break;
@@ -53,6 +57,24 @@ const validateField: ValidationFunction = (field, value) => {
 };
 
 export const validateClient = (clientData: Partial<Client>): void => {
+  const requiredFields: (keyof Client)[] = [
+    "id",
+    "name",
+    "avatar",
+    "email",
+    "phone",
+    "gender",
+    "location",
+    "pincode",
+  ];
+
+  // Check for missing required fields
+  requiredFields?.forEach((field) => {
+    if (clientData[field] === undefined) {
+      throw new RequiredFieldError(field);
+    }
+  });
+
   Object.keys(clientData)?.forEach((field) => {
     validateField(field as keyof Client, clientData[field as keyof Client]);
   });

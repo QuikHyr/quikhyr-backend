@@ -16,21 +16,21 @@ export class ValidationError extends Error {
 
 export class RequiredFieldError extends ValidationError {
   constructor(field: string) {
-    super(`Field "${field}" is required.`);
+    super(`Field '${field}' is required.`);
     this.name = "RequiredFieldError";
   }
 }
 
 export class StringFieldError extends ValidationError {
   constructor(field: string) {
-    super(`Field "${field}" must be a string.`);
+    super(`Field '${field}' must be a string.`);
     this.name = "StringFieldError";
   }
 }
 
 export class NumberFieldError extends ValidationError {
   constructor(field: string) {
-    super(`Field "${field}" must be a number.`);
+    super(`Field '${field}' must be a number.`);
     this.name = "NumberFieldError";
   }
 }

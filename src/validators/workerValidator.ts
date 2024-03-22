@@ -27,42 +27,68 @@ const validateField: ValidationFunction = (field, value) => {
         throw new StringFieldError(field);
       }
       break;
+
     case "age":
       if (typeof value !== "number") {
         throw new NumberFieldError(field);
       }
       break;
+
     case "gender":
       if (!["Male", "Female", "Rather Not Say"].includes(value)) {
         throw new Error(
-          `Field "gender" must be either "Male", "Female", or "Rather Not Say".`
+          `Field '${field}' must be either "Male", "Female", or "Rather Not Say".`
         );
       }
       break;
+
     case "location":
       if (
+        typeof value !== "object" ||
         typeof value?.latitude !== "number" ||
         typeof value?.longitude !== "number"
       ) {
         throw new Error(
-          `Field "location" must be an object with latitude and longitude as numbers.`
+          `Field '${field}' must be an object with latitude and longitude as numbers.`
         );
       }
       break;
+
     case "available":
       if (typeof value !== "boolean") {
-        throw new Error(`Field "available" must be a boolean.`);
+        throw new Error(`Field '${field}' must be a boolean.`);
       }
       break;
+
     case "subservices":
       if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
-        throw new Error(`Field "subservices" must be a string array.`);
+        throw new Error(`Field '${field}' must be a string array.`);
       }
       break;
   }
 };
 
 export const validateWorker = (workerData: Partial<Worker>): void => {
+  const requiredFields: (keyof Worker)[] = [
+    "id",
+    "name",
+    "avatar",
+    "email",
+    "phone",
+    "gender",
+    "location",
+    "pincode",
+    "available",
+    "subservices",
+  ];
+
+  // Check for missing required fields
+  requiredFields?.forEach((field) => {
+    if (workerData[field] === undefined) {
+      throw new RequiredFieldError(field);
+    }
+  });
+  
   Object.keys(workerData)?.forEach((field) => {
     validateField(field as keyof Worker, workerData[field as keyof Worker]);
   });

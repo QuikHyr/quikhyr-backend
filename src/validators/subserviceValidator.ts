@@ -23,10 +23,11 @@ const validateField: ValidationFunction = (field, value) => {
         throw new StringFieldError(field);
       }
       break;
+
     case "tags":
     case "workers":
       if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
-        throw new Error(`Field "${field}" must be a string array.`);
+        throw new Error(`Field '${field}' must be a string array.`);
       }
       break;
   }
@@ -35,6 +36,21 @@ const validateField: ValidationFunction = (field, value) => {
 export const validateSubservice = (
   subserviceData: Partial<Subservice>
 ): void => {
+  const requiredFields: (keyof Subservice)[] = [
+    "serviceId",
+    "name",
+    "description",
+    "tags",
+    "workers",
+  ];
+
+  // Check for missing required fields
+  requiredFields?.forEach((field) => {
+    if (subserviceData[field] === undefined) {
+      throw new RequiredFieldError(field);
+    }
+  });
+
   Object.keys(subserviceData)?.forEach((field) => {
     validateField(
       field as keyof Subservice,

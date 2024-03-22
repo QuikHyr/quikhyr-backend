@@ -22,15 +22,17 @@ const validateField: ValidationFunction = (field, value) => {
         throw new StringFieldError(field);
       }
       break;
+
     case "ratePerUnit":
       if (typeof value !== "number") {
         throw new NumberFieldError(field);
       }
       break;
+
     case "status":
       if (!["Pending", "Completed", "Not Completed"].includes(value)) {
         throw new Error(
-          `Field "status" must be either "Pending", "Completed", or "Not Completed".`
+          `Field '${field}' must be either "Pending", "Completed", or "Not Completed".`
         );
       }
       break;
@@ -38,6 +40,24 @@ const validateField: ValidationFunction = (field, value) => {
 };
 
 export const validateBooking = (bookingData: Partial<Booking>): void => {
+  const requiredFields: (keyof Booking)[] = [
+    "clientId",
+    "workerId",
+    "subserviceId",
+    "dateTime",
+    "ratePerUnit",
+    "unit",
+    "status",
+    "location",
+  ];
+
+  // Check for missing required fields
+  requiredFields?.forEach((field) => {
+    if (bookingData[field] === undefined) {
+      throw new RequiredFieldError(field);
+    }
+  });
+
   Object.keys(bookingData)?.forEach((field) => {
     validateField(field as keyof Booking, bookingData[field as keyof Booking]);
   });
