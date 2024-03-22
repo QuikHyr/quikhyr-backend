@@ -4,7 +4,10 @@ import {
   User as Client,
   UserBasicInfo as ClientBasicInfo,
 } from "../types/user";
-import { validateClient } from "../validators/clientValidator";
+import {
+  validateClient,
+  validateClientUpdate,
+} from "../validators/clientValidator";
 import { CustomError } from "../errors";
 
 // Create a new client
@@ -97,7 +100,7 @@ export const updateClientById = async (
   clientData: Partial<Client>
 ): Promise<Partial<Client>> => {
   try {
-    validateClient(clientData);
+    validateClientUpdate(clientData);
 
     if (clientData?.id && clientData?.id !== id) {
       throw new CustomError(`Field "id" cannot be updated!`, 400);

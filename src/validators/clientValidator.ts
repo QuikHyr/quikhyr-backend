@@ -2,19 +2,26 @@ import {
   NumberFieldError,
   RequiredFieldError,
   StringFieldError,
+  UnsupportedFieldError,
 } from "../errors";
 import { User as Client } from "../types/user";
 
 type ValidationFunction = (field: keyof Client, value: any) => void;
 
-const validateField: ValidationFunction = (field, value) => {
-  // Required field checks
-  if (field !== "age") {
-    if (value === null || value === undefined || value === "") {
-      throw new RequiredFieldError(field);
-    }
-  }
+const requiredFields: (keyof Client)[] = [
+  "id",
+  "name",
+  "avatar",
+  "email",
+  "phone",
+  "gender",
+  "location",
+  "pincode",
+];
 
+const supportedFields: (keyof Client)[] = requiredFields.concat(["age"]);
+
+const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
   switch (field) {
     case "id":
@@ -57,25 +64,31 @@ const validateField: ValidationFunction = (field, value) => {
 };
 
 export const validateClient = (clientData: Partial<Client>): void => {
-  const requiredFields: (keyof Client)[] = [
-    "id",
-    "name",
-    "avatar",
-    "email",
-    "phone",
-    "gender",
-    "location",
-    "pincode",
-  ];
-
   // Check for missing required fields
   requiredFields?.forEach((field) => {
-    if (clientData[field] === undefined) {
+    if (
+      clientData[field] === undefined ||
+      clientData[field] === null ||
+      clientData[field] === ""
+    ) {
       throw new RequiredFieldError(field);
     }
   });
 
-  Object.keys(clientData)?.forEach((field) => {
-    validateField(field as keyof Client, clientData[field as keyof Client]);
+  validateClientUpdate(clientData);
+};
+
+export const validateClientUpdate = (clientData: Partial<Client>): void => {
+  Object.keys(clientData).forEach((field) => {
+    // Check for unsupported fields
+    if (!supportedFields.includes(field as keyof Client)) {
+      throw new UnsupportedFieldError(field);
+    } else {
+      if (field === "timestamps") {
+        throw new Error("Field 'timestamps' is automatically generated.");
+      }
+
+      validateTypes(field as keyof Client, clientData[field as keyof Client]);
+    }
   });
 };

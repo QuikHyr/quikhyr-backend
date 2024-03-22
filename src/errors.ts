@@ -21,6 +21,13 @@ export class RequiredFieldError extends ValidationError {
   }
 }
 
+export class UnsupportedFieldError extends ValidationError {
+  constructor(field: string) {
+    super(`Field '${field}' is not supported.`);
+    this.name = "UnsupportedFieldError";
+  }
+}
+
 export class StringFieldError extends ValidationError {
   constructor(field: string) {
     super(`Field '${field}' must be a string.`);

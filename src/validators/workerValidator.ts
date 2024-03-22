@@ -2,19 +2,27 @@ import {
   NumberFieldError,
   RequiredFieldError,
   StringFieldError,
+  UnsupportedFieldError,
 } from "../errors";
 import { Worker } from "../types/worker";
 
 type ValidationFunction = (field: keyof Worker, value: any) => void;
 
-const validateField: ValidationFunction = (field, value) => {
-  // Required field checks
-  if (field !== "age") {
-    if (value === null || value === undefined || value === "") {
-      throw new RequiredFieldError(field);
-    }
-  }
+const requiredFields: (keyof Worker)[] = [
+  "id",
+  "name",
+  "avatar",
+  "email",
+  "phone",
+  "gender",
+  "location",
+  "pincode",
+  "available",
+  "subservices",
+];
+const supportedFields: (keyof Worker)[] = requiredFields.concat([]);
 
+const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
   switch (field) {
     case "id":
@@ -69,27 +77,31 @@ const validateField: ValidationFunction = (field, value) => {
 };
 
 export const validateWorker = (workerData: Partial<Worker>): void => {
-  const requiredFields: (keyof Worker)[] = [
-    "id",
-    "name",
-    "avatar",
-    "email",
-    "phone",
-    "gender",
-    "location",
-    "pincode",
-    "available",
-    "subservices",
-  ];
-
   // Check for missing required fields
   requiredFields?.forEach((field) => {
-    if (workerData[field] === undefined) {
+    if (
+      workerData[field] === undefined ||
+      workerData[field] === null ||
+      workerData[field] === ""
+    ) {
       throw new RequiredFieldError(field);
     }
   });
-  
-  Object.keys(workerData)?.forEach((field) => {
-    validateField(field as keyof Worker, workerData[field as keyof Worker]);
+
+  validateWorkerUpdate(workerData);
+};
+
+export const validateWorkerUpdate = (workerData: Partial<Worker>): void => {
+  Object.keys(workerData).forEach((field) => {
+    // Check for unsupported fields
+    if (!supportedFields.includes(field as keyof Worker)) {
+      throw new UnsupportedFieldError(field);
+    } else {
+      if (field === "timestamps") {
+        throw new Error("Field 'timestamps' is automatically generated.");
+      }
+
+      validateTypes(field as keyof Worker, workerData[field as keyof Worker]);
+    }
   });
 };
