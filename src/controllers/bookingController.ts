@@ -2,7 +2,7 @@ import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Booking } from "../types/booking";
 import { validateBooking } from "../validators/bookingValidator";
-import { CustomError } from "../../errors";
+import { CustomError } from "../errors";
 
 // Create a new booking
 export const createBooking = async (

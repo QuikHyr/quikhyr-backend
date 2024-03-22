@@ -1,7 +1,7 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Worker, WorkerBasicInfo } from "../types/worker";
-import { CustomError } from "../../errors";
+import { CustomError } from "../errors";
 import { validateWorker } from "../validators/workerValidator";
 
 // Create a new worker

@@ -2,7 +2,7 @@ import {
   NumberFieldError,
   RequiredFieldError,
   StringFieldError,
-} from "../../errors";
+} from "../errors";
 import { Booking } from "../types/booking";
 
 type ValidationFunction = (field: keyof Booking, value: any) => void;

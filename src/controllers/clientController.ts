@@ -5,12 +5,10 @@ import {
   UserBasicInfo as ClientBasicInfo,
 } from "../types/user";
 import { validateClient } from "../validators/clientValidator";
-import { CustomError } from "../../errors";
+import { CustomError } from "../errors";
 
 // Create a new client
-export const createClient = async (
-  clientData: Client
-): Promise<Client> => {
+export const createClient = async (clientData: Client): Promise<Client> => {
   try {
     validateClient(clientData);
 
@@ -35,7 +33,7 @@ export const createClient = async (
 export const getClients = async (): Promise<string[]> => {
   try {
     const querySnapshot = await db?.collection("clients")?.get();
-    const clients = querySnapshot?.docs.map((doc) => doc.id);
+    const clients = querySnapshot?.docs.map((doc: any) => doc.id);
 
     return clients;
   } catch (error) {
