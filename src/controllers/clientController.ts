@@ -33,7 +33,7 @@ export const createClient = async (clientData: Client): Promise<Client> => {
 export const getClients = async (): Promise<string[]> => {
   try {
     const querySnapshot = await db?.collection("clients")?.get();
-    const clients = querySnapshot?.docs.map((doc: any) => doc.id);
+    const clients = querySnapshot?.docs.map((client) => client.id);
 
     return clients;
   } catch (error) {

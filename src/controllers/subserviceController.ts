@@ -1,55 +1,52 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Subservice } from "../types/subservice";
+import { validateSubservice } from "../validators/subserviceValidator";
+import { CustomError } from "../errors";
 
 // Create a new subservice
 export const createSubservice = async (
   subserviceData: Subservice
-): Promise<Subservice | null> => {
+): Promise<Subservice> => {
   try {
-    // Make sure the associated serviceId is provided
-    if (!subserviceData?.serviceId || subserviceData?.serviceId === "") {
-      throw new Error("Service ID associated is required!");
-    }
+    validateSubservice(subserviceData);
 
     const subserviceRef = db?.collection("subservices")?.doc();
 
     const subservice: Subservice = {
       ...subserviceData,
-      // id: subserviceRef?.id,
-      // timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
-    
+
     await subserviceRef.set(subservice);
     console.log("Subservice created successfully!");
-    
+
     // Add subservice's ID to its associated service's subservices array
     const serviceRef = db
       ?.collection("services")
       ?.doc(subserviceData?.serviceId);
     await serviceRef.update({
-      subservices: FieldValue.arrayUnion(subserviceRef.id),
+      subservices: FieldValue.arrayUnion(subserviceRef?.id),
     });
 
     return subservice;
   } catch (error) {
     console.error("Error creating Subservice:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
 // Get all subservices
-export const getSubservices = async (): Promise<Subservice[] | null> => {
+export const getSubservices = async (): Promise<Subservice[]> => {
   try {
     const querySnapshot = await db?.collection("subservices")?.get();
     const subservices: Subservice[] = querySnapshot?.docs.map(
-      (doc) => doc.data() as Subservice
+      (subservice) => subservice.data() as Subservice
     );
 
     return subservices;
   } catch (error) {
     console.error("Error getting subservices:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -69,7 +66,7 @@ export const getSubserviceById = async (
     }
   } catch (error) {
     console.error("Error getting subservice:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -77,7 +74,7 @@ export const getSubserviceById = async (
 export const updateSubserviceById = async (
   id: string,
   subserviceData: Partial<Subservice>
-): Promise<Partial<Subservice> | null> => {
+): Promise<Partial<Subservice>> => {
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
 
@@ -107,16 +104,13 @@ export const updateSubserviceById = async (
     // Update the subservice
     await subserviceRef.update({
       ...subserviceData,
-      timestamps: {
-        updatedAt: Timestamp.now(),
-      },
     });
     console.log(`Subservice with ID: ${id} updated successfully!`);
 
     return subserviceData;
   } catch (error) {
     console.error("Error updating Subservice:", error);
-    return null;
+    throw new CustomError(`${error}`, 400);
   }
 };
 
@@ -141,6 +135,6 @@ export const deleteSubserviceById = async (id: string): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error("Error deleting Subservice:", error);
-    return false;
+    throw new CustomError(`${error}`, 400);
   }
 };

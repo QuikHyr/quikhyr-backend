@@ -13,7 +13,7 @@ const bookingRouter = Router();
 // Create a new booking
 bookingRouter.post("/", async (req, res, next) => {
   try {
-    const booking = await createBooking(req.body);
+    const booking = await createBooking(req?.body);
 
     if (booking) {
       res.status(201).json(booking);
@@ -28,7 +28,7 @@ bookingRouter.post("/", async (req, res, next) => {
 // Get all bookings as IDs or filtered by clientId or workerId and categorized into current and past bookings
 bookingRouter.get("/", async (req, res, next) => {
   try {
-    const { clientId, workerId } = req.query as {
+    const { clientId, workerId } = req?.query as {
       clientId?: string;
       workerId?: string;
     };
@@ -64,7 +64,7 @@ bookingRouter.get("/", async (req, res, next) => {
 // Get a booking by ID
 bookingRouter.get("/:id", async (req, res, next) => {
   try {
-    const booking = await getBookingById(req.params?.id);
+    const booking = await getBookingById(req?.params?.id);
 
     if (booking) {
       res.status(200).json(booking);
@@ -79,7 +79,7 @@ bookingRouter.get("/:id", async (req, res, next) => {
 // Update a booking by ID
 bookingRouter.put("/:id", async (req, res, next) => {
   try {
-    const updatedBooking = await updateBookingById(req.params?.id, req.body);
+    const updatedBooking = await updateBookingById(req?.params?.id, req?.body);
 
     if (updatedBooking) {
       res.status(200).json(updatedBooking);
@@ -94,7 +94,7 @@ bookingRouter.put("/:id", async (req, res, next) => {
 // Delete a booking
 bookingRouter.delete("/:id", async (req, res, next) => {
   try {
-    const deletedBooking = await deleteBookingById(req.params?.id);
+    const deletedBooking = await deleteBookingById(req?.params?.id);
 
     if (deletedBooking) {
       res.status(200).send("Booking deleted successfully!");

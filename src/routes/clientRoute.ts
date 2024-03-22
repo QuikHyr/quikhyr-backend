@@ -13,7 +13,7 @@ const clientRouter = Router();
 // Create a new client
 clientRouter.post("/", async (req, res, next) => {
   try {
-    const client = await createClient(req.body);
+    const client = await createClient(req?.body);
 
     if (client) {
       res.status(201).json(client);
@@ -43,7 +43,7 @@ clientRouter.get("/", async (req, res, next) => {
 // Get a client by ID
 clientRouter.get("/:id", async (req, res, next) => {
   try {
-    const client = await getClientById(req.params?.id);
+    const client = await getClientById(req?.params?.id);
 
     if (client) {
       res.status(200).json(client);
@@ -58,7 +58,7 @@ clientRouter.get("/:id", async (req, res, next) => {
 // Get client's basic info by ID
 clientRouter.get("/:id/basic-info", async (req, res, next) => {
   try {
-    const client = await getClientBasicInfoById(req.params?.id);
+    const client = await getClientBasicInfoById(req?.params?.id);
 
     if (client) {
       res.status(200).json(client);
@@ -73,7 +73,7 @@ clientRouter.get("/:id/basic-info", async (req, res, next) => {
 // Update a client by ID
 clientRouter.put("/:id", async (req, res, next) => {
   try {
-    const updatedClient = await updateClientById(req.params?.id, req.body);
+    const updatedClient = await updateClientById(req?.params?.id, req?.body);
 
     if (updatedClient) {
       res.status(200).json(updatedClient);
@@ -88,7 +88,7 @@ clientRouter.put("/:id", async (req, res, next) => {
 // Delete a client by ID
 clientRouter.delete("/:id", async (req, res, next) => {
   try {
-    const deletedClient = await deleteClientById(req.params?.id);
+    const deletedClient = await deleteClientById(req?.params?.id);
 
     if (deletedClient) {
       res.status(200).send("Client deleted successfully!");

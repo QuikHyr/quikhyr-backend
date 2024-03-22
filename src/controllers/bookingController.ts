@@ -5,9 +5,7 @@ import { validateBooking } from "../validators/bookingValidator";
 import { CustomError } from "../errors";
 
 // Create a new booking
-export const createBooking = async (
-  bookingData: Booking
-): Promise<Booking | null> => {
+export const createBooking = async (bookingData: Booking): Promise<Booking> => {
   try {
     validateBooking(bookingData);
 
@@ -110,7 +108,7 @@ export const getBookingById = async (id: string): Promise<Booking | null> => {
 export const updateBookingById = async (
   id: string,
   bookingData: Partial<Booking>
-): Promise<Partial<Booking> | null> => {
+): Promise<Partial<Booking>> => {
   try {
     validateBooking(bookingData);
 
@@ -137,7 +135,6 @@ export const deleteBookingById = async (id: string): Promise<boolean> => {
     const bookingRef = db?.collection("bookings")?.doc(id);
 
     await bookingRef.delete();
-
     console.log(`Booking with ID: ${id} deleted successfully.`);
 
     return true;

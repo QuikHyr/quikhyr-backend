@@ -40,7 +40,7 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
 export const getWorkers = async (): Promise<string[]> => {
   try {
     const querySnapshot = await db?.collection("workers")?.get();
-    const workers = querySnapshot?.docs.map((doc) => doc?.id);
+    const workers = querySnapshot?.docs.map((worker) => worker?.id);
 
     return workers;
   } catch (error) {

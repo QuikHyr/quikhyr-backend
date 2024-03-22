@@ -29,7 +29,7 @@ export const getServices = async (): Promise<Service[]> => {
   try {
     const querySnapshot = await db?.collection("services")?.get();
     const services: Service[] = querySnapshot?.docs.map(
-      (doc: any) => doc.data() as Service
+      (service) => service.data() as Service
     );
 
     return services;

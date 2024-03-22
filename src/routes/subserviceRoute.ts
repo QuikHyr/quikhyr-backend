@@ -10,9 +10,9 @@ import {
 const subserviceRouter = Router();
 
 // Create a new subservice
-subserviceRouter.post("/", async (req, res) => {
+subserviceRouter.post("/", async (req, res, next) => {
   try {
-    const subservice = await createSubservice(req.body);
+    const subservice = await createSubservice(req?.body);
 
     if (subservice) {
       res.status(201).json(subservice);
@@ -20,12 +20,12 @@ subserviceRouter.post("/", async (req, res) => {
       res.status(400).send("Error creating subservice");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get all subservices
-subserviceRouter.get("/", async (req, res) => {
+subserviceRouter.get("/", async (req, res, next) => {
   try {
     const subservices = await getSubservices();
 
@@ -35,14 +35,14 @@ subserviceRouter.get("/", async (req, res) => {
       res.status(404).send("No subservices found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Get a subservice by ID
-subserviceRouter.get("/:id", async (req, res) => {
+subserviceRouter.get("/:id", async (req, res, next) => {
   try {
-    const subservice = await getSubserviceById(req.params?.id);
+    const subservice = await getSubserviceById(req?.params?.id);
 
     if (subservice) {
       res.status(200).json(subservice);
@@ -50,16 +50,16 @@ subserviceRouter.get("/:id", async (req, res) => {
       res.status(404).send("Subservice not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Update a subservice by ID
-subserviceRouter.put("/:id", async (req, res) => {
+subserviceRouter.put("/:id", async (req, res, next) => {
   try {
     const updatedSubservice = await updateSubserviceById(
-      req.params?.id,
-      req.body
+      req?.params?.id,
+      req?.body
     );
 
     if (updatedSubservice) {
@@ -68,14 +68,14 @@ subserviceRouter.put("/:id", async (req, res) => {
       res.status(404).send("Subservice not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 
 // Delete a subservice by ID
-subserviceRouter.delete("/:id", async (req, res) => {
+subserviceRouter.delete("/:id", async (req, res, next) => {
   try {
-    const deletedSubservice = await deleteSubserviceById(req.params?.id);
+    const deletedSubservice = await deleteSubserviceById(req?.params?.id);
 
     if (deletedSubservice) {
       res.status(200).send("Subservice deleted successfully!");
@@ -83,7 +83,7 @@ subserviceRouter.delete("/:id", async (req, res) => {
       res.status(404).send("Subservice not found!");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 

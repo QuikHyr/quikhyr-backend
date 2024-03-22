@@ -12,7 +12,7 @@ const serviceRouter = Router();
 // Create a new service
 serviceRouter.post("/", async (req, res, next) => {
   try {
-    const service = await createService(req.body);
+    const service = await createService(req?.body);
 
     if (service) {
       res.status(201).json(service);
@@ -42,7 +42,7 @@ serviceRouter.get("/", async (req, res, next) => {
 // Get a service by ID
 serviceRouter.get("/:id", async (req, res, next) => {
   try {
-    const service = await getServiceById(req.params?.id);
+    const service = await getServiceById(req?.params?.id);
 
     if (service) {
       res.status(200).json(service);
@@ -57,7 +57,7 @@ serviceRouter.get("/:id", async (req, res, next) => {
 // Update a service by ID
 serviceRouter.put("/:id", async (req, res, next) => {
   try {
-    const updatedSubservice = await updateServiceById(req.params?.id, req.body);
+    const updatedSubservice = await updateServiceById(req?.params?.id, req?.body);
 
     if (updatedSubservice) {
       res.status(200).json(updatedSubservice);
@@ -73,7 +73,7 @@ serviceRouter.put("/:id", async (req, res, next) => {
 serviceRouter.delete("/:id", async (req, res, next) => {
   try {
     const deletedSubservice = await deleteServiceAndSubservicesById(
-      req.params?.id
+      req?.params?.id
     );
 
     if (deletedSubservice) {
