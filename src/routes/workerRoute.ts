@@ -7,6 +7,7 @@ import {
   getWorkers,
   updateWorkerById,
 } from "../controllers/workerController";
+import { Worker } from "../types/worker";
 
 const workerRouter = Router();
 
@@ -25,15 +26,30 @@ workerRouter.post("/", async (req, res, next) => {
   }
 });
 
-// Get all workers
+// Get all workers as IDs or filtered by serviceId, subserviceId
 workerRouter.get("/", async (req, res, next) => {
   try {
-    const worker = await getWorkers();
+    const { serviceId, subserviceId } = req?.query as {
+      serviceId?: string;
+      subserviceId?: string;
+    };
 
-    if (worker) {
-      res.status(200).json(worker);
+    if (!serviceId && !subserviceId) {
+      const workerIds = (await getWorkers()) as string[];
+
+      if (workerIds?.length > 0) {
+        res.status(200).json(workerIds);
+      } else {
+        res.status(404).send("No workers found!");
+      }
     } else {
-      res.status(404).send("No workers found!");
+      const workers = (await getWorkers(serviceId, subserviceId)) as Worker[];
+
+      if (workers?.length > 0) {
+        res.status(200).json(workers);
+      } else {
+        res.status(404).send("No workers found!");
+      }
     }
   } catch (error) {
     next(error);

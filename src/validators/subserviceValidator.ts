@@ -12,7 +12,6 @@ const requiredFields: (keyof Subservice)[] = [
   "name",
   "description",
   "tags",
-  "workers",
 ];
 
 const supportedFields: (keyof Subservice)[] = requiredFields.concat([]);
@@ -29,7 +28,6 @@ const validateTypes: ValidationFunction = (field, value) => {
       break;
 
     case "tags":
-    case "workers":
       if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
         throw new Error(`Field '${field}' must be a string array.`);
       }
@@ -62,6 +60,10 @@ export const validateSubserviceUpdate = (
     // Check for unsupported fields
     if (!supportedFields.includes(field as keyof Subservice)) {
       throw new UnsupportedFieldError(field);
+    } else {
+      if (field === "workers") {
+        throw new Error("Field 'workers' is auto-generated.");
+      }
     }
 
     validateTypes(

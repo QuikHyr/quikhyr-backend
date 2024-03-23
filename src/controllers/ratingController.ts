@@ -26,7 +26,7 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
   }
 };
 
-// Get all ratings as IDs or filtered by clientId, workerId, or bookingId
+// Get all ratings as IDs or filtered by clientId, workerId, bookingId
 export const getRatings = async (
   clientId?: string,
   workerId?: string,
@@ -35,7 +35,7 @@ export const getRatings = async (
   try {
     let query: FirebaseFirestore.Query = db?.collection("ratings");
 
-    // Filter ratings by clientId , workerId, or bookingId, if provided
+    // Filter ratings by clientId , workerId, bookingId, if provided
     if (clientId) query = query?.where("clientId", "==", clientId);
     if (workerId) query = query?.where("workerId", "==", workerId);
     if (bookingId) query = query?.where("bookingId", "==", bookingId);

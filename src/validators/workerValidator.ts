@@ -18,7 +18,8 @@ const requiredFields: (keyof Worker)[] = [
   "location",
   "pincode",
   "available",
-  "subservices",
+  "serviceIds",
+  "subserviceIds",
 ];
 const supportedFields: (keyof Worker)[] = requiredFields.concat([]);
 
@@ -68,7 +69,8 @@ const validateTypes: ValidationFunction = (field, value) => {
       }
       break;
 
-    case "subservices":
+    case "serviceIds":
+    case "subserviceIds":
       if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
         throw new Error(`Field '${field}' must be a string array.`);
       }
@@ -98,7 +100,7 @@ export const validateWorkerUpdate = (workerData: Partial<Worker>): void => {
       throw new UnsupportedFieldError(field);
     } else {
       if (field === "timestamps") {
-        throw new Error("Field 'timestamps' is automatically generated.");
+        throw new Error("Field 'timestamps' is auto-generated.");
       }
 
       validateTypes(field as keyof Worker, workerData[field as keyof Worker]);

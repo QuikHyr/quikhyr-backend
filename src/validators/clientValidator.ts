@@ -85,7 +85,7 @@ export const validateClientUpdate = (clientData: Partial<Client>): void => {
       throw new UnsupportedFieldError(field);
     } else {
       if (field === "timestamps") {
-        throw new Error("Field 'timestamps' is automatically generated.");
+        throw new Error("Field 'timestamps' is auto-generated.");
       }
 
       validateTypes(field as keyof Client, clientData[field as keyof Client]);

@@ -5,5 +5,4 @@ export interface Service {
   avatar: string;
   image: string;
   description: string;
-  subservices: string[];
 }

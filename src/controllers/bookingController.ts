@@ -26,7 +26,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
   }
 };
 
-// Get all bookings as IDs or filtered by clientId or workerId and categorized into current and past bookings
+// Get all bookings as IDs or filtered by clientId, workerId, and categorized into current and past bookings
 export const getBookings = async (
   clientId?: string,
   workerId?: string
@@ -40,7 +40,7 @@ export const getBookings = async (
   try {
     let query: FirebaseFirestore.Query = db?.collection("bookings");
 
-    // Filter bookings by clientId or workerId, if provided
+    // Filter bookings by clientId, workerId, if provided
     if (clientId) query = query?.where("clientId", "==", clientId);
     if (workerId) query = query?.where("workerId", "==", workerId);
 

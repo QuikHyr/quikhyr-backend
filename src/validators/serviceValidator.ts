@@ -12,7 +12,6 @@ const requiredFields: (keyof Service)[] = [
   "avatar",
   "image",
   "description",
-  "subservices",
 ];
 
 const supportedFields: (keyof Service)[] = requiredFields.concat([]);
@@ -26,12 +25,6 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "description":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
-      }
-      break;
-
-    case "subservices":
-      if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
-        throw new Error(`Field '${field}' must be a string array.`);
       }
       break;
   }

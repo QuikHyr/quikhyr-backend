@@ -5,5 +5,5 @@ export interface Subservice {
   name: string;
   description: string;
   tags: string[];
-  workers: string[];
+  // workers: string[];
 }

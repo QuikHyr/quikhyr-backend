@@ -1,4 +1,4 @@
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Subservice } from "../types/subservice";
 import { validateSubservice } from "../validators/subserviceValidator";
@@ -20,13 +20,13 @@ export const createSubservice = async (
     await subserviceRef.set(subservice);
     console.log("Subservice created successfully!");
 
-    // Add subservice's ID to its associated service's subservices array
-    const serviceRef = db
-      ?.collection("services")
-      ?.doc(subserviceData?.serviceId);
-    await serviceRef.update({
-      subservices: FieldValue.arrayUnion(subserviceRef?.id),
-    });
+    // // Add subservice's ID to its associated service's subservices array
+    // const serviceRef = db
+    //   ?.collection("serviceIds")
+    //   ?.doc(subserviceData?.serviceId);
+    // await serviceRef.update({
+    //   subservices: FieldValue.arrayUnion(subserviceRef?.id),
+    // });
 
     return subservice;
   } catch (error) {
@@ -78,28 +78,28 @@ export const updateSubserviceById = async (
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
 
-    // Fetch currently associated serviceId
-    const subserviceSnapshot = await subserviceRef.get();
-    const currentServiceId = subserviceSnapshot.get("serviceId");
+    // // Fetch currently associated serviceId
+    // const subserviceSnapshot = await subserviceRef.get();
+    // const currentServiceId = subserviceSnapshot.get("serviceId");
 
-    if (
-      subserviceData?.serviceId &&
-      subserviceData?.serviceId !== currentServiceId
-    ) {
-      // Remove the subservice ID from the previously associated service's subservices array
-      const oldServiceRef = db?.collection("services").doc(currentServiceId);
-      await oldServiceRef.update({
-        subservices: FieldValue.arrayRemove(id),
-      });
+    // if (
+    //   subserviceData?.serviceId &&
+    //   subserviceData?.serviceId !== currentServiceId
+    // ) {
+    //   // Remove the subservice ID from the previously associated service's subservices array
+    //   const oldServiceRef = db?.collection("services").doc(currentServiceId);
+    //   await oldServiceRef.update({
+    //     subservices: FieldValue.arrayRemove(id),
+    //   });
 
-      // Add the subservice ID to the newly updated serviceId service's subservices array
-      const newServiceRef = db
-        ?.collection("services")
-        ?.doc(subserviceData?.serviceId);
-      await newServiceRef.update({
-        subservices: FieldValue.arrayUnion(id),
-      });
-    }
+    //   // Add the subservice ID to the newly updated serviceId service's subservices array
+    //   const newServiceRef = db
+    //     ?.collection("serviceIds")
+    //     ?.doc(subserviceData?.serviceId);
+    //   await newServiceRef.update({
+    //     subservices: FieldValue.arrayUnion(id),
+    //   });
+    // }
 
     // Update the subservice
     await subserviceRef.update({
@@ -119,15 +119,15 @@ export const deleteSubserviceById = async (id: string): Promise<boolean> => {
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
 
-    // Fetch currently associated serviceId
-    const subserviceSnapshot = await subserviceRef.get();
-    const serviceId = subserviceSnapshot.get("serviceId");
+    // // Fetch currently associated serviceId
+    // const subserviceSnapshot = await subserviceRef.get();
+    // const serviceId = subserviceSnapshot.get("serviceId");
 
-    // Remove the subservice ID from the associated service's subservices array
-    const serviceRef = db?.collection("services").doc(serviceId);
-    await serviceRef.update({
-      subservices: FieldValue.arrayRemove(id),
-    });
+    // // Remove the subservice ID from the associated service's subservices array
+    // const serviceRef = db?.collection("services").doc(serviceId);
+    // await serviceRef.update({
+    //   subservices: FieldValue.arrayRemove(id),
+    // });
 
     await subserviceRef.delete();
     console.log(`Subservice with ID: ${id} deleted successfully!`);

@@ -19,15 +19,15 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
     await workerRef.set(worker);
     console.log("Worker created successfully!");
 
-    // Add worker's ID to associated subservices' workers array
-    const batch = db.batch();
-    for (const subserviceId of workerData?.subservices) {
-      const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-      batch.update(subserviceRef, {
-        workers: FieldValue.arrayUnion(workerRef?.id),
-      });
-    }
-    await batch.commit();
+    // // Add worker's ID to associated subservices' workers array
+    // const batch = db.batch();
+    // for (const subserviceId of workerData?.subservices) {
+    //   const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
+    //   batch.update(subserviceRef, {
+    //     workers: FieldValue.arrayUnion(workerRef?.id),
+    //   });
+    // }
+    // await batch.commit();
 
     return worker;
   } catch (error) {
@@ -36,13 +36,33 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
   }
 };
 
-// Get all workers
-export const getWorkers = async (): Promise<string[]> => {
+// Get all workers as IDs or filtered by serviceId, subserviceId
+export const getWorkers = async (
+  serviceId?: string,
+  subserviceId?: string
+): Promise<string[] | Worker[]> => {
   try {
-    const querySnapshot = await db?.collection("workers")?.get();
-    const workers = querySnapshot?.docs.map((worker) => worker?.id);
+    let query: FirebaseFirestore.Query = db?.collection("workers");
 
-    return workers;
+    // Filter workers by serviceId, subserviceId, if provided
+    if (serviceId)
+      query = query?.where("serviceIds", "array-contains", serviceId);
+    if (subserviceId)
+      query = query?.where("subserviceIds", "array-contains", subserviceId);
+
+    const querySnapshot = await query?.get();
+
+    if (serviceId || subserviceId) {
+      const workers: Worker[] = querySnapshot?.docs?.map(
+        (worker) => worker.data() as Worker
+      );
+
+      return workers;
+    } else {
+      const workerIds = querySnapshot?.docs?.map((worker) => worker.id);
+
+      return workerIds as string[];
+    }
   } catch (error) {
     console.error("Error getting workers:", error);
     throw new CustomError(`${error}`, 400);
@@ -109,42 +129,42 @@ export const updateWorkerById = async (
 
     const workerRef = db?.collection("workers")?.doc(id);
 
-    // Fetch currently associated subservices
-    const workerSnapshot = await workerRef.get();
-    const currentSubservices = workerSnapshot.get("subservices");
+    // // Fetch currently associated subservices
+    // const workerSnapshot = await workerRef.get();
+    // const currentSubservices = workerSnapshot.get("subservices");
 
-    if (
-      workerData?.subservices &&
-      workerData?.subservices !== currentSubservices
-    ) {
-      const batch = db.batch();
+    // if (
+    //   workerData?.subservices &&
+    //   workerData?.subservices !== currentSubservices
+    // ) {
+    //   const batch = db.batch();
 
-      // Calculate added and removed subservices
-      const addedSubservices = workerData.subservices?.filter(
-        (subserviceId: string) => !currentSubservices?.includes(subserviceId)
-      );
-      const removedSubservices = currentSubservices?.filter(
-        (subserviceId: string) =>
-          !workerData?.subservices?.includes(subserviceId)
-      );
+    //   // Calculate added and removed subservices
+    //   const addedSubservices = workerData.subservices?.filter(
+    //     (subserviceId: string) => !currentSubservices?.includes(subserviceId)
+    //   );
+    //   const removedSubservices = currentSubservices?.filter(
+    //     (subserviceId: string) =>
+    //       !workerData?.subservices?.includes(subserviceId)
+    //   );
 
-      // Update subservices' workers array
-      addedSubservices?.forEach((subserviceId: string) => {
-        const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-        batch.update(subserviceRef, {
-          workers: FieldValue.arrayUnion(workerRef.id),
-        });
-      });
+    //   // Update subservices' workers array
+    //   addedSubservices?.forEach((subserviceId: string) => {
+    //     const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
+    //     batch.update(subserviceRef, {
+    //       workers: FieldValue.arrayUnion(workerRef.id),
+    //     });
+    //   });
 
-      removedSubservices?.forEach((subserviceId: string) => {
-        const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-        batch.update(subserviceRef, {
-          workers: FieldValue.arrayRemove(workerRef.id),
-        });
-      });
+    //   removedSubservices?.forEach((subserviceId: string) => {
+    //     const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
+    //     batch.update(subserviceRef, {
+    //       workers: FieldValue.arrayRemove(workerRef.id),
+    //     });
+    //   });
 
-      await batch.commit();
-    }
+    //   await batch.commit();
+    // }
 
     // Update the worker
     await workerRef.update({
@@ -165,19 +185,19 @@ export const deleteWorkerById = async (id: string): Promise<boolean> => {
   try {
     const workerRef = db?.collection("workers")?.doc(id);
 
-    // Fetch currently associated subservices
-    const workerSnapshot = await workerRef.get();
-    const currentSubservices = workerSnapshot.get("subservices");
+    // // Fetch currently associated subservices
+    // const workerSnapshot = await workerRef.get();
+    // const currentSubservices = workerSnapshot.get("subservices");
 
-    // Remove worker's ID from associated subservices' workers array
-    const batch = db.batch();
-    currentSubservices?.forEach((subserviceId: string) => {
-      const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-      batch.update(subserviceRef, {
-        workers: FieldValue.arrayRemove(workerRef.id),
-      });
-    });
-    await batch.commit();
+    // // Remove worker's ID from associated subservices' workers array
+    // const batch = db.batch();
+    // currentSubservices?.forEach((subserviceId: string) => {
+    //   const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
+    //   batch.update(subserviceRef, {
+    //     workers: FieldValue.arrayRemove(workerRef.id),
+    //   });
+    // });
+    // await batch.commit();
 
     await workerRef.delete();
     console.log(`Worker with ID: ${id} updated successfully!`);
