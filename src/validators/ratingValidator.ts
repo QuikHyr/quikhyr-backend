@@ -1,18 +1,22 @@
 import {
-  NumberFieldError,
   RequiredFieldError,
   StringFieldError,
+  UnsupportedFieldError,
 } from "../errors";
 import { Rating } from "../types/rating";
 
 type ValidationFunction = (field: keyof Rating, value: any) => void;
 
-const validateField: ValidationFunction = (field, value) => {
-  // Required field checks
-  if (value === null || value === undefined || value === "") {
-    throw new RequiredFieldError(field);
-  }
+const requiredFields: (keyof Rating)[] = [
+  "clientId",
+  "workerId",
+  "bookingId",
+  "ratings",
+];
 
+const supportedFields: (keyof Rating)[] = requiredFields.concat([]);
+
+const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
   switch (field) {
     case "clientId":
@@ -53,21 +57,26 @@ const validateField: ValidationFunction = (field, value) => {
 };
 
 export const validateRating = (ratingData: Partial<Rating>): void => {
-  const requiredFields: (keyof Rating)[] = [
-    "clientId",
-    "workerId",
-    "bookingId",
-    "ratings",
-  ];
-
   // Check for missing required fields
   requiredFields?.forEach((field) => {
-    if (ratingData[field] === undefined) {
+    if (
+      ratingData[field] === undefined ||
+      ratingData[field] === null ||
+      ratingData[field] === ""
+    ) {
       throw new RequiredFieldError(field);
     }
   });
 
+  validateRatingUpdate(ratingData);
+};
+
+export const validateRatingUpdate = (ratingData: Partial<Rating>): void => {
   Object.keys(ratingData)?.forEach((field) => {
-    validateField(field as keyof Rating, ratingData[field as keyof Rating]);
+    // Check for unsupported fields
+    if (!supportedFields.includes(field as keyof Rating)) {
+      throw new UnsupportedFieldError(field);
+    }
+    validateTypes(field as keyof Rating, ratingData[field as keyof Rating]);
   });
 };
