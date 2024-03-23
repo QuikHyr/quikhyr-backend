@@ -1,4 +1,3 @@
-import { FieldValue } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Subservice } from "../types/subservice";
 import { validateSubservice } from "../validators/subserviceValidator";

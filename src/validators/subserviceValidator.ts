@@ -9,6 +9,7 @@ type ValidationFunction = (field: keyof Subservice, value: any) => void;
 
 const requiredFields: (keyof Subservice)[] = [
   "serviceId",
+  "serviceName",
   "name",
   "description",
   "tags",
@@ -19,8 +20,9 @@ const supportedFields: (keyof Subservice)[] = requiredFields.concat([]);
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
   switch (field) {
-    case "name":
     case "serviceId":
+    case "serviceName":
+    case "name":
     case "description":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
