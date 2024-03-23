@@ -125,6 +125,12 @@ export const deleteClientById = async (id: string): Promise<boolean> => {
   try {
     const clientRef = db?.collection("clients")?.doc(id);
 
+    const clientSnapshot = await clientRef.get();
+    if (!clientSnapshot.exists) {
+      console.log(`Client with ID: ${id} does not exist.`);
+      return false;
+    }
+
     await clientRef.delete();
     console.log(`Client with ID: ${id} deleted successfully!`);
 

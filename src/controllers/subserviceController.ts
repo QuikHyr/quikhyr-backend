@@ -128,6 +128,12 @@ export const deleteSubserviceById = async (id: string): Promise<boolean> => {
     //   subservices: FieldValue.arrayRemove(id),
     // });
 
+    const subserviceSnapshot = await subserviceRef.get();
+    if (!subserviceSnapshot.exists) {
+      console.log(`Subservice with ID: ${id} does not exist.`);
+      return false;
+    }
+
     await subserviceRef.delete();
     console.log(`Subservice with ID: ${id} deleted successfully!`);
 

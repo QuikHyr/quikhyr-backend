@@ -107,6 +107,12 @@ export const deleteRatingById = async (id: string): Promise<boolean> => {
   try {
     const ratingRef = db?.collection("ratings")?.doc(id);
 
+    const ratingSnapshot = await ratingRef.get();
+    if (!ratingSnapshot.exists) {
+      console.log(`Rating with ID: ${id} does not exist.`);
+      return false;
+    }
+
     await ratingRef.delete();
     console.log(`Rating with ID: ${id} deleted successfully.`);
 

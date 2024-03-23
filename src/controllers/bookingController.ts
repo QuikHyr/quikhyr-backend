@@ -121,6 +121,12 @@ export const deleteBookingById = async (id: string): Promise<boolean> => {
   try {
     const bookingRef = db?.collection("bookings")?.doc(id);
 
+    const bookingSnapshot = await bookingRef.get();
+    if (!bookingSnapshot.exists) {
+      console.log(`Booking with ID: ${id} does not exist.`);
+      return false;
+    }
+
     await bookingRef.delete();
     console.log(`Booking with ID: ${id} deleted successfully.`);
 

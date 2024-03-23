@@ -89,15 +89,22 @@ export const deleteServiceAndSubservicesById = async (
       ?.collection("subservices")
       .where("serviceId", "==", id);
 
+    const batch = db?.batch();
+
     // Delete the service
+    const serviceSnapshot = await serviceRef.get();
+    if (!serviceSnapshot.exists) {
+      console.log(`Service with ID: ${id} does not exist.`);
+      return false;
+    }
     await serviceRef.delete();
 
     // Delete associated subservices
     const subservicesSnapshot = await subservicesQuery?.get();
-    const batch = db?.batch();
     subservicesSnapshot?.forEach((subserviceDoc: any) => {
-      batch?.delete(subserviceDoc?.ref);
+      if (subserviceDoc.exists) batch?.delete(subserviceDoc?.ref);
     });
+
     await batch.commit();
 
     console.log(

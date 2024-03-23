@@ -199,6 +199,12 @@ export const deleteWorkerById = async (id: string): Promise<boolean> => {
     // });
     // await batch.commit();
 
+    const workerSnapshot = await workerRef.get();
+    if (!workerSnapshot.exists) {
+      console.log(`Worker with ID: ${id} does not exist.`);
+      return false;
+    }
+
     await workerRef.delete();
     console.log(`Worker with ID: ${id} updated successfully!`);
 
