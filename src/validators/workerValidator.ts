@@ -21,7 +21,7 @@ const requiredFields: (keyof Worker)[] = [
   "serviceIds",
   "subserviceIds",
 ];
-const supportedFields: (keyof Worker)[] = requiredFields.concat([]);
+const supportedFields: (keyof Worker)[] = requiredFields.concat(["age"]);
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
