@@ -1,7 +1,7 @@
 import { db } from "../firebase";
 import { Service } from "../types/service";
 import { CustomError } from "../errors";
-import { validateService } from "../validators/serviceValidator";
+import { validateService, validateServiceUpdate } from "../validators/serviceValidator";
 
 // Create a new service
 export const createService = async (serviceData: Service): Promise<Service> => {
@@ -58,7 +58,7 @@ export const updateServiceById = async (
   serviceData: Partial<Service>
 ): Promise<Partial<Service>> => {
   try {
-    validateService(serviceData);
+    validateServiceUpdate(serviceData);
 
     const serviceRef = db?.collection("services")?.doc(id);
 

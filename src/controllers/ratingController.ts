@@ -2,7 +2,7 @@ import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Rating } from "../types/rating";
 import { CustomError } from "../errors";
-import { validateRating } from "../validators/ratingValidator";
+import { validateRating, validateRatingUpdate } from "../validators/ratingValidator";
 
 // Create a new rating
 export const createRating = async (ratingData: Rating): Promise<Rating> => {
@@ -80,7 +80,7 @@ export const updateRatingById = async (
   ratingData: Partial<Rating>
 ): Promise<Partial<Rating>> => {
   try {
-    validateRating(ratingData);
+    validateRatingUpdate(ratingData);
 
     const ratingRef = db?.collection("ratings")?.doc(id);
 

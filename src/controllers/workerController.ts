@@ -2,7 +2,10 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Worker, WorkerBasicInfo } from "../types/worker";
 import { CustomError } from "../errors";
-import { validateWorker } from "../validators/workerValidator";
+import {
+  validateWorker,
+  validateWorkerUpdate,
+} from "../validators/workerValidator";
 
 // Create a new worker
 export const createWorker = async (workerData: Worker): Promise<Worker> => {
@@ -18,16 +21,6 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
 
     await workerRef.set(worker);
     console.log("Worker created successfully!");
-
-    // // Add worker's ID to associated subservices' workers array
-    // const batch = db.batch();
-    // for (const subserviceId of workerData?.subservices) {
-    //   const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-    //   batch.update(subserviceRef, {
-    //     workers: FieldValue.arrayUnion(workerRef?.id),
-    //   });
-    // }
-    // await batch.commit();
 
     return worker;
   } catch (error) {
@@ -115,48 +108,10 @@ export const updateWorkerById = async (
   workerData: Partial<Worker>
 ): Promise<Partial<Worker>> => {
   try {
-    validateWorker(workerData);
+    validateWorkerUpdate(workerData);
 
     const workerRef = db?.collection("workers")?.doc(id);
 
-    // // Fetch currently associated subservices
-    // const workerSnapshot = await workerRef.get();
-    // const currentSubservices = workerSnapshot.get("subservices");
-
-    // if (
-    //   workerData?.subservices &&
-    //   workerData?.subservices !== currentSubservices
-    // ) {
-    //   const batch = db.batch();
-
-    //   // Calculate added and removed subservices
-    //   const addedSubservices = workerData.subservices?.filter(
-    //     (subserviceId: string) => !currentSubservices?.includes(subserviceId)
-    //   );
-    //   const removedSubservices = currentSubservices?.filter(
-    //     (subserviceId: string) =>
-    //       !workerData?.subservices?.includes(subserviceId)
-    //   );
-
-    //   // Update subservices' workers array
-    //   addedSubservices?.forEach((subserviceId: string) => {
-    //     const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-    //     batch.update(subserviceRef, {
-    //       workers: FieldValue.arrayUnion(workerRef.id),
-    //     });
-    //   });
-
-    //   removedSubservices?.forEach((subserviceId: string) => {
-    //     const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-    //     batch.update(subserviceRef, {
-    //       workers: FieldValue.arrayRemove(workerRef.id),
-    //     });
-    //   });
-
-    //   await batch.commit();
-    // }
-
-    // Update the worker
     await workerRef.update({
       ...workerData,
       timestamps: { updatedAt: Timestamp.now() },
@@ -174,20 +129,6 @@ export const updateWorkerById = async (
 export const deleteWorkerById = async (id: string): Promise<boolean> => {
   try {
     const workerRef = db?.collection("workers")?.doc(id);
-
-    // // Fetch currently associated subservices
-    // const workerSnapshot = await workerRef.get();
-    // const currentSubservices = workerSnapshot.get("subservices");
-
-    // // Remove worker's ID from associated subservices' workers array
-    // const batch = db.batch();
-    // currentSubservices?.forEach((subserviceId: string) => {
-    //   const subserviceRef = db?.collection("subservices")?.doc(subserviceId);
-    //   batch.update(subserviceRef, {
-    //     workers: FieldValue.arrayRemove(workerRef.id),
-    //   });
-    // });
-    // await batch.commit();
 
     const workerSnapshot = await workerRef.get();
     if (!workerSnapshot.exists) {

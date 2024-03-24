@@ -1,6 +1,9 @@
 import { db } from "../firebase";
 import { Subservice } from "../types/subservice";
-import { validateSubservice } from "../validators/subserviceValidator";
+import {
+  validateSubservice,
+  validateSubserviceUpdate,
+} from "../validators/subserviceValidator";
 import { CustomError } from "../errors";
 
 // Create a new subservice
@@ -70,6 +73,8 @@ export const updateSubserviceById = async (
   subserviceData: Partial<Subservice>
 ): Promise<Partial<Subservice>> => {
   try {
+    validateSubserviceUpdate(subserviceData);
+
     const subserviceRef = db?.collection("subservices")?.doc(id);
 
     // Update the subservice
