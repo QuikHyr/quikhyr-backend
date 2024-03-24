@@ -75,12 +75,7 @@ export const getWorkerById = async (id: string): Promise<Worker | null> => {
     const workerRef = db?.collection("workers")?.doc(id);
     const worker = await workerRef.get();
 
-    if (worker?.exists) {
-      return worker?.data() as Worker;
-    } else {
-      console.log("No such worker!");
-      return null;
-    }
+    return worker?.data() as Worker;
   } catch (error) {
     console.error("Error getting worker:", error);
     throw new CustomError(`${error}`, 400);
@@ -90,7 +85,7 @@ export const getWorkerById = async (id: string): Promise<Worker | null> => {
 // Get worker's basic info by ID
 export const getWorkerBasicInfoById = async (
   id: string
-): Promise<WorkerBasicInfo | null> => {
+): Promise<WorkerBasicInfo> => {
   try {
     const querySnapshot = await db
       ?.collection("workers")
@@ -99,20 +94,15 @@ export const getWorkerBasicInfoById = async (
       ?.where("id", "==", id)
       .get();
 
-    if (!querySnapshot?.empty) {
-      const workerData = querySnapshot?.docs[0]?.data();
-      const basicInfo = {
-        name: workerData?.name,
-        avatar: workerData?.avatar,
-        pincode: workerData?.pincode,
-        available: workerData?.available,
-      };
+    const workerData = querySnapshot?.docs[0]?.data();
+    const basicInfo = {
+      name: workerData?.name,
+      avatar: workerData?.avatar,
+      pincode: workerData?.pincode,
+      available: workerData?.available,
+    };
 
-      return basicInfo;
-    } else {
-      console.log("No such worker!");
-      return null;
-    }
+    return basicInfo;
   } catch (error) {
     console.error("Error getting worker's basic info:", error);
     throw new CustomError(`${error}`, 400);

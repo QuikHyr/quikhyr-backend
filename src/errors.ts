@@ -41,3 +41,10 @@ export class NumberFieldError extends ValidationError {
     this.name = "NumberFieldError";
   }
 }
+
+export class BooleanFieldError extends ValidationError {
+  constructor(field: string) {
+    super(`Field '${field}' must be a boolean.`);
+    this.name = "BooleanFieldError";
+  }
+}

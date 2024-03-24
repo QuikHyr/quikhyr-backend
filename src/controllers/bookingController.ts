@@ -30,13 +30,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
 export const getBookings = async (
   clientId?: string,
   workerId?: string
-): Promise<
-  | string[]
-  | {
-      currentBookings: Booking[];
-      pastBookings: Booking[];
-    }
-> => {
+): Promise<string[] | CategorizedBookings> => {
   try {
     let query: FirebaseFirestore.Query = db?.collection("bookings");
 
@@ -55,17 +49,19 @@ export const getBookings = async (
         (booking) => booking.data() as Booking
       );
 
-      const categorizedBookings = {
+      const categorizedBookings: CategorizedBookings = {
         currentBookings,
         pastBookings,
       };
 
-      return categorizedBookings as CategorizedBookings;
+      return categorizedBookings;
     } else {
       const querySnapshot = await query?.get();
-      const bookingIds = querySnapshot?.docs.map((booking) => booking?.id);
+      const bookingIds: string[] = querySnapshot?.docs.map(
+        (booking) => booking?.id
+      );
 
-      return bookingIds as string[];
+      return bookingIds;
     }
   } catch (error) {
     console.error("Error getting bookings:", error);
@@ -74,17 +70,12 @@ export const getBookings = async (
 };
 
 // Get a booking by ID
-export const getBookingById = async (id: string): Promise<Booking | null> => {
+export const getBookingById = async (id: string): Promise<Booking> => {
   try {
     const bookingRef = db?.collection("bookings")?.doc(id);
     const booking = await bookingRef.get();
 
-    if (booking?.exists) {
-      return booking?.data() as Booking;
-    } else {
-      console.log("No such booking!");
-      return null;
-    }
+    return booking?.data() as Booking;
   } catch (error) {
     console.error("Error getting booking:", error);
     throw new CustomError(`${error}`, 400);

@@ -46,17 +46,12 @@ export const getClients = async (): Promise<string[]> => {
 };
 
 // Get a client by ID
-export const getClientById = async (id: string): Promise<Client | null> => {
+export const getClientById = async (id: string): Promise<Client> => {
   try {
     const clientRef = db?.collection("clients")?.doc(id);
     const client = await clientRef.get();
 
-    if (client?.exists) {
-      return client?.data() as Client;
-    } else {
-      console.log("No such client!");
-      return null;
-    }
+    return client?.data() as Client;
   } catch (error) {
     console.error("Error getting client:", error);
     throw new CustomError(`${error}`, 400);
@@ -66,7 +61,7 @@ export const getClientById = async (id: string): Promise<Client | null> => {
 // Get client's basic info by ID
 export const getClientBasicInfoById = async (
   id: string
-): Promise<ClientBasicInfo | null> => {
+): Promise<ClientBasicInfo> => {
   try {
     const querySnapshot = await db
       ?.collection("clients")
@@ -75,19 +70,14 @@ export const getClientBasicInfoById = async (
       ?.where("id", "==", id)
       .get();
 
-    if (!querySnapshot?.empty) {
-      const clientData = querySnapshot?.docs[0]?.data();
-      const basicInfo = {
-        name: clientData?.name,
-        avatar: clientData?.avatar,
-        pincode: clientData?.pincode,
-      };
+    const clientData = querySnapshot?.docs[0]?.data();
+    const basicInfo = {
+      name: clientData?.name,
+      avatar: clientData?.avatar,
+      pincode: clientData?.pincode,
+    };
 
-      return basicInfo;
-    } else {
-      console.log("No such client!");
-      return null;
-    }
+    return basicInfo;
   } catch (error) {
     console.error("Error getting client's basic info:", error);
     throw new CustomError(`${error}`, 400);

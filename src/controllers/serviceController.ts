@@ -40,17 +40,12 @@ export const getServices = async (): Promise<Service[]> => {
 };
 
 // Get a service by ID
-export const getServiceById = async (id: string): Promise<Service | null> => {
+export const getServiceById = async (id: string): Promise<Service> => {
   try {
     const serviceRef = db?.collection("services")?.doc(id);
     const service = await serviceRef.get();
 
-    if (service?.exists) {
-      return service?.data() as Service;
-    } else {
-      console.log("No such service!");
-      return null;
-    }
+    return service?.data() as Service;
   } catch (error) {
     console.error("Error getting service:", error);
     throw new CustomError(`${error}`, 400);

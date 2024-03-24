@@ -1,4 +1,6 @@
+import { Timestamp } from "firebase-admin/firestore";
 import {
+  BooleanFieldError,
   NumberFieldError,
   RequiredFieldError,
   StringFieldError,
@@ -18,8 +20,11 @@ const requiredFields: (keyof Worker)[] = [
   "location",
   "pincode",
   "available",
+  "isVerified",
+  "isActive",
   "serviceIds",
   "subserviceIds",
+  "lastOnline",
 ];
 const supportedFields: (keyof Worker)[] = requiredFields.concat(["age"]);
 
@@ -43,6 +48,14 @@ const validateTypes: ValidationFunction = (field, value) => {
       }
       break;
 
+    case "available":
+    case "isVerified":
+    case "isActive":
+      if (typeof value !== "boolean") {
+        throw new BooleanFieldError(field);
+      }
+      break;
+
     case "gender":
       if (!["Male", "Female", "Rather Not Say"].includes(value)) {
         throw new Error(
@@ -63,16 +76,16 @@ const validateTypes: ValidationFunction = (field, value) => {
       }
       break;
 
-    case "available":
-      if (typeof value !== "boolean") {
-        throw new Error(`Field '${field}' must be a boolean.`);
-      }
-      break;
-
     case "serviceIds":
     case "subserviceIds":
       if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
         throw new Error(`Field '${field}' must be a string array.`);
+      }
+      break;
+
+    case "lastOnline":
+      if (!(value instanceof Timestamp)) {
+        throw new Error(`Field '${field}' must be a Timestamp.`);
       }
       break;
   }

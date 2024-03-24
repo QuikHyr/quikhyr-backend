@@ -28,10 +28,10 @@ clientRouter.post("/", async (req, res, next) => {
 // Get all clients
 clientRouter.get("/", async (req, res, next) => {
   try {
-    const client = await getClients();
+    const clients = await getClients();
 
-    if (client) {
-      res.status(200).json(client);
+    if (clients) {
+      res.status(200).json(clients);
     } else {
       res.status(404).send("No clients found!");
     }

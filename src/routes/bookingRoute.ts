@@ -33,28 +33,20 @@ bookingRouter.get("/", async (req, res, next) => {
       workerId?: string;
     };
 
-    if (!clientId && !workerId) {
-      const bookingIds = (await getBookings()) as string[];
+    const bookings = await getBookings(clientId, workerId);
 
-      if (bookingIds?.length > 0) {
-        res.status(200).json(bookingIds);
-      } else {
-        res.status(404).send("No bookings found!");
-      }
+    if (
+      bookings &&
+      ((bookings instanceof Array && bookings?.length > 0) ||
+        (bookings instanceof Object &&
+          (("currentBookings" in bookings &&
+            bookings?.currentBookings?.length > 0) ||
+            ("pastBookings" in bookings &&
+              bookings?.pastBookings?.length > 0))))
+    ) {
+      res.status(200).json(bookings);
     } else {
-      const bookings = (await getBookings(clientId, workerId)) as {
-        currentBookings: Booking[];
-        pastBookings: Booking[];
-      };
-
-      if (
-        bookings?.currentBookings?.length > 0 ||
-        bookings?.pastBookings?.length > 0
-      ) {
-        res.status(200).json(bookings);
-      } else {
-        res.status(404).send("No bookings found!");
-      }
+      res.status(404).send("No bookings found!");
     }
   } catch (error) {
     next(error);

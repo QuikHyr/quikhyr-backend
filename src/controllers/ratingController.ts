@@ -49,9 +49,11 @@ export const getRatings = async (
 
       return ratings;
     } else {
-      const ratingIds = querySnapshot?.docs?.map((rating) => rating.id);
+      const ratingIds: string[] = querySnapshot?.docs?.map(
+        (rating) => rating.id
+      );
 
-      return ratingIds as string[];
+      return ratingIds;
     }
   } catch (error) {
     console.error("Error getting ratings:", error);
@@ -60,17 +62,12 @@ export const getRatings = async (
 };
 
 // Get a rating by ID
-export const getRatingById = async (id: string): Promise<Rating | null> => {
+export const getRatingById = async (id: string): Promise<Rating> => {
   try {
     const ratingRef = db?.collection("ratings")?.doc(id);
     const rating = await ratingRef.get();
 
-    if (rating?.exists) {
-      return rating?.data() as Rating;
-    } else {
-      console.log("No such rating!");
-      return null;
-    }
+    return rating?.data() as Rating;
   } catch (error) {
     console.error("Error getting rating:", error);
     throw new CustomError(`${error}`, 400);

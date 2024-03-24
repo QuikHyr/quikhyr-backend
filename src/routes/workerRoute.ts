@@ -34,22 +34,12 @@ workerRouter.get("/", async (req, res, next) => {
       subserviceId?: string;
     };
 
-    if (!serviceId && !subserviceId) {
-      const workerIds = (await getWorkers()) as string[];
+    const workers = await getWorkers(serviceId, subserviceId);
 
-      if (workerIds?.length > 0) {
-        res.status(200).json(workerIds);
-      } else {
-        res.status(404).send("No workers found!");
-      }
+    if (workers?.length > 0) {
+      res.status(200).json(workers);
     } else {
-      const workers = (await getWorkers(serviceId, subserviceId)) as Worker[];
-
-      if (workers?.length > 0) {
-        res.status(200).json(workers);
-      } else {
-        res.status(404).send("No workers found!");
-      }
+      res.status(404).send("No workers found!");
     }
   } catch (error) {
     next(error);

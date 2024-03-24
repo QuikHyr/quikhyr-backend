@@ -19,14 +19,6 @@ export const createSubservice = async (
     await subserviceRef.set(subservice);
     console.log("Subservice created successfully!");
 
-    // // Add subservice's ID to its associated service's subservices array
-    // const serviceRef = db
-    //   ?.collection("serviceIds")
-    //   ?.doc(subserviceData?.serviceId);
-    // await serviceRef.update({
-    //   subservices: FieldValue.arrayUnion(subserviceRef?.id),
-    // });
-
     return subservice;
   } catch (error) {
     console.error("Error creating Subservice:", error);
@@ -34,15 +26,25 @@ export const createSubservice = async (
   }
 };
 
-// Get all subservices
-export const getSubservices = async (): Promise<Subservice[]> => {
+// Get all subservices as data or filtered by serviceId
+export const getSubservices = async (
+  serviceId?: string
+): Promise<Subservice[] | null> => {
   try {
-    const querySnapshot = await db?.collection("subservices")?.get();
+    let query: FirebaseFirestore.Query = await db?.collection("subservices");
+
+    // Filter subservices by serviceId, if provided
+    if (serviceId) query = query?.where("serviceId", "==", serviceId);
+
+    const querySnapshot = await query?.get();
     const subservices: Subservice[] = querySnapshot?.docs.map(
       (subservice) => subservice.data() as Subservice
     );
 
-    return subservices;
+    if (subservices?.length === 0) {
+      console.log("No subservices found!");
+      return null;
+    } else return subservices;
   } catch (error) {
     console.error("Error getting subservices:", error);
     throw new CustomError(`${error}`, 400);
@@ -50,19 +52,12 @@ export const getSubservices = async (): Promise<Subservice[]> => {
 };
 
 // Get a subservice by ID
-export const getSubserviceById = async (
-  id: string
-): Promise<Subservice | null> => {
+export const getSubserviceById = async (id: string): Promise<Subservice> => {
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
     const subservice = await subserviceRef.get();
 
-    if (subservice?.exists) {
-      return subservice?.data() as Subservice;
-    } else {
-      console.log("No such subservice!");
-      return null;
-    }
+    return subservice?.data() as Subservice;
   } catch (error) {
     console.error("Error getting subservice:", error);
     throw new CustomError(`${error}`, 400);
@@ -76,29 +71,6 @@ export const updateSubserviceById = async (
 ): Promise<Partial<Subservice>> => {
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
-
-    // // Fetch currently associated serviceId
-    // const subserviceSnapshot = await subserviceRef.get();
-    // const currentServiceId = subserviceSnapshot.get("serviceId");
-
-    // if (
-    //   subserviceData?.serviceId &&
-    //   subserviceData?.serviceId !== currentServiceId
-    // ) {
-    //   // Remove the subservice ID from the previously associated service's subservices array
-    //   const oldServiceRef = db?.collection("services").doc(currentServiceId);
-    //   await oldServiceRef.update({
-    //     subservices: FieldValue.arrayRemove(id),
-    //   });
-
-    //   // Add the subservice ID to the newly updated serviceId service's subservices array
-    //   const newServiceRef = db
-    //     ?.collection("serviceIds")
-    //     ?.doc(subserviceData?.serviceId);
-    //   await newServiceRef.update({
-    //     subservices: FieldValue.arrayUnion(id),
-    //   });
-    // }
 
     // Update the subservice
     await subserviceRef.update({
@@ -117,16 +89,6 @@ export const updateSubserviceById = async (
 export const deleteSubserviceById = async (id: string): Promise<boolean> => {
   try {
     const subserviceRef = db?.collection("subservices")?.doc(id);
-
-    // // Fetch currently associated serviceId
-    // const subserviceSnapshot = await subserviceRef.get();
-    // const serviceId = subserviceSnapshot.get("serviceId");
-
-    // // Remove the subservice ID from the associated service's subservices array
-    // const serviceRef = db?.collection("services").doc(serviceId);
-    // await serviceRef.update({
-    //   subservices: FieldValue.arrayRemove(id),
-    // });
 
     const subserviceSnapshot = await subserviceRef.get();
     if (!subserviceSnapshot.exists) {

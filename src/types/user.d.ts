@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase-admin/firestore";
 import { Location, Timestamps } from "./global";
 
 export interface User {
@@ -10,6 +11,9 @@ export interface User {
   gender: "Male" | "Female" | "Rather Not Say";
   location: Location;
   pincode: string;
+  isVerified: boolean;
+  lastOnline: Timestamp;
+  isActive: boolean;
   timestamps: Timestamps;
 }
 

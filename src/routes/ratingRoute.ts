@@ -34,26 +34,12 @@ ratingRouter.get("/", async (req, res, next) => {
       bookingId?: string;
     };
 
-    if (!clientId && !workerId && !bookingId) {
-      const ratingIds = (await getRatings()) as string[];
+    const ratings = await getRatings(clientId, workerId, bookingId);
 
-      if (ratingIds?.length > 0) {
-        res.status(200).json(ratingIds);
-      } else {
-        res.status(404).send("No ratings found!");
-      }
+    if (ratings?.length > 0) {
+      res.status(200).json(ratings);
     } else {
-      const ratings = (await getRatings(
-        clientId,
-        workerId,
-        bookingId
-      )) as Rating[];
-
-      if (ratings?.length > 0) {
-        res.status(200).json(ratings);
-      } else {
-        res.status(404).send("No ratings found!");
-      }
+      res.status(404).send("No ratings found!");
     }
   } catch (error) {
     next(error);

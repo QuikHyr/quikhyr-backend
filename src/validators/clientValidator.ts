@@ -1,4 +1,6 @@
+import { Timestamp } from "firebase-admin/firestore";
 import {
+  BooleanFieldError,
   NumberFieldError,
   RequiredFieldError,
   StringFieldError,
@@ -41,6 +43,13 @@ const validateTypes: ValidationFunction = (field, value) => {
       }
       break;
 
+    case "isVerified":
+    case "isActive":
+      if (typeof value !== "boolean") {
+        throw new BooleanFieldError(field);
+      }
+      break;
+
     case "gender":
       if (!["Male", "Female", "Rather Not Say"].includes(value)) {
         throw new Error(
@@ -58,6 +67,12 @@ const validateTypes: ValidationFunction = (field, value) => {
         throw new Error(
           `Field '${field}' must be an object with latitude and longitude as numbers.`
         );
+      }
+      break;
+
+    case "lastOnline":
+      if (!(value instanceof Timestamp)) {
+        throw new Error(`Field '${field}' must be a Timestamp.`);
       }
       break;
   }
