@@ -3,6 +3,7 @@ import { Location, Timestamps } from "./global";
 
 export interface User {
   id: string;
+  fcmToken: string;
   name: string;
   age?: number;
   avatar: string;

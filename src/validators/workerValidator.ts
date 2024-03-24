@@ -12,6 +12,7 @@ type ValidationFunction = (field: keyof Worker, value: any) => void;
 
 const requiredFields: (keyof Worker)[] = [
   "id",
+  "fcmToken",
   "name",
   "avatar",
   "email",
@@ -32,6 +33,7 @@ const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
   switch (field) {
     case "id":
+    case "fcmToken":
     case "name":
     case "avatar":
     case "email":
