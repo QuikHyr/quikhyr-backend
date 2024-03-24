@@ -16,6 +16,9 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
 
     const worker: Worker = {
       ...workerData,
+      lastOnline: Timestamp.fromDate(
+        new Date(workerData?.lastOnline as string)
+      ),
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
@@ -114,6 +117,11 @@ export const updateWorkerById = async (
 
     await workerRef.update({
       ...workerData,
+      ...(workerData?.lastOnline && {
+        lastOnline: Timestamp.fromDate(
+          new Date(workerData?.lastOnline as string)
+        ),
+      }),
       timestamps: { updatedAt: Timestamp.now() },
     });
     console.log(`Worker with ID: ${id} updated successfully!`);

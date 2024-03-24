@@ -20,6 +20,9 @@ const requiredFields: (keyof Client)[] = [
   "gender",
   "location",
   "pincode",
+  "lastOnline",
+  "isActive",
+  "isVerified",
 ];
 
 const supportedFields: (keyof Client)[] = requiredFields.concat(["age"]);
@@ -34,6 +37,7 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "email":
     case "phone":
     case "pincode":
+    case "lastOnline":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }
@@ -69,12 +73,6 @@ const validateTypes: ValidationFunction = (field, value) => {
         throw new Error(
           `Field '${field}' must be an object with latitude and longitude as numbers.`
         );
-      }
-      break;
-
-    case "lastOnline":
-      if (!(value instanceof Timestamp)) {
-        throw new Error(`Field '${field}' must be a Timestamp.`);
       }
       break;
   }

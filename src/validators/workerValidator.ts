@@ -39,6 +39,7 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "email":
     case "phone":
     case "pincode":
+    case "lastOnline":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }
@@ -82,12 +83,6 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "subserviceIds":
       if (!Array.isArray(value) || !value.every((v) => typeof v === "string")) {
         throw new Error(`Field '${field}' must be a string array.`);
-      }
-      break;
-
-    case "lastOnline":
-      if (!(value instanceof Timestamp)) {
-        throw new Error(`Field '${field}' must be a Timestamp.`);
       }
       break;
   }
