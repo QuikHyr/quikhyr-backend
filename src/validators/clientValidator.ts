@@ -20,7 +20,6 @@ const requiredFields: (keyof Client)[] = [
   "gender",
   "location",
   "pincode",
-  "lastOnline",
   "isActive",
   "isVerified",
 ];
@@ -37,7 +36,6 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "email":
     case "phone":
     case "pincode":
-    case "lastOnline":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }

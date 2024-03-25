@@ -13,7 +13,6 @@ export interface User {
   location: Location;
   pincode: string;
   isVerified: boolean;
-  lastOnline: Timestamp | string;
   isActive: boolean;
   timestamps: Timestamps;
 }

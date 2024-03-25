@@ -25,7 +25,6 @@ const requiredFields: (keyof Worker)[] = [
   "isActive",
   "serviceIds",
   "subserviceIds",
-  "lastOnline",
 ];
 const supportedFields: (keyof Worker)[] = requiredFields.concat(["age"]);
 
@@ -39,7 +38,6 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "email":
     case "phone":
     case "pincode":
-    case "lastOnline":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }

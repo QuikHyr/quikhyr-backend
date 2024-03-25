@@ -19,9 +19,6 @@ export const createClient = async (clientData: Client): Promise<Client> => {
 
     const client: Client = {
       ...clientData,
-      lastOnline: Timestamp.fromDate(
-        new Date(clientData?.lastOnline as string)
-      ),
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
@@ -102,11 +99,6 @@ export const updateClientById = async (
     const clientRef = db?.collection("clients")?.doc(id);
     await clientRef.update({
       ...clientData,
-      ...(clientData?.lastOnline && {
-        lastOnline: Timestamp.fromDate(
-          new Date(clientData?.lastOnline as string)
-        ),
-      }),
       timestamps: { updatedAt: Timestamp.now() },
     });
     console.log(`Client with ID: ${id} updated successfully!`);
