@@ -63,7 +63,7 @@ export const getWorkers = async (
 };
 
 // Get a worker by ID
-export const getWorkerById = async (id: string): Promise<Worker | null> => {
+export const getWorkerById = async (id: string): Promise<Worker> => {
   try {
     const workerRef = db?.collection("workers")?.doc(id);
     const worker = await workerRef.get();
@@ -75,27 +75,53 @@ export const getWorkerById = async (id: string): Promise<Worker | null> => {
   }
 };
 
-// Get worker's basic info by ID
-export const getWorkerBasicInfoById = async (
-  id: string
-): Promise<WorkerBasicInfo> => {
+/// Get most rated workers' basic info
+export const getMostRatedWorkersBasicInfo = async (): Promise<
+  WorkerBasicInfo[]
+> => {
   try {
-    const querySnapshot = await db
-      ?.collection("workers")
-      ?.select("name", "avatar", "pincode")
-      ?.limit(1)
-      ?.where("id", "==", id)
+    const topRatedSubservicesSnapshot = await db
+      ?.collection("ratings")
+      ?.orderBy("overallRating", "desc")
+      ?.limit(4)
       .get();
 
-    const workerData = querySnapshot?.docs[0]?.data();
-    const basicInfo = {
-      name: workerData?.name,
-      avatar: workerData?.avatar,
-      pincode: workerData?.pincode,
-      available: workerData?.available,
-    };
+    const topRatedWorkerBasicInfo = await Promise.all(
+      topRatedSubservicesSnapshot.docs.map(async (doc) => {
+        const subserviceName = doc?.data().subserviceName;
+        const workerId = doc?.data()?.workerId;
 
-    return basicInfo;
+        const workerDoc = await db?.collection("workers")?.doc(workerId)?.get();
+
+        if (workerDoc?.exists) {
+          const workerData = workerDoc.data();
+          const name = workerData?.name;
+          const avatar = workerData?.avatar;
+          const pincode = workerData?.pincode;
+          const isVerified = workerData?.isVerified;
+
+          const rating = doc?.data()?.overallRating;
+          return {
+            name,
+            avatar,
+            pincode,
+            isVerified,
+            subserviceName,
+            rating,
+          };
+        } else {
+          console.log(`Worker with ID: ${workerId} does not exist`);
+          return null;
+        }
+      })
+    );
+
+    // Filter out any null values (workers not found)
+    const filteredWorkerDetails = topRatedWorkerBasicInfo.filter(
+      (details) => details !== null
+    );
+
+    return filteredWorkerDetails as WorkerBasicInfo[];
   } catch (error) {
     console.error("Error getting worker's basic info:", error);
     throw new CustomError(`${error}`, 400);

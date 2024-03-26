@@ -8,5 +8,13 @@ export interface Worker extends User {
 }
 
 export interface WorkerBasicInfo extends UserBasicInfo {
+  rating: number;
+  subserviceName: string;
+}
+
+export interface WorkerInfo extends WorkerBasicInfo {
   available: boolean;
+  ratePerUnit: number;
+  unit: string;
+  waitingList: number;
 }

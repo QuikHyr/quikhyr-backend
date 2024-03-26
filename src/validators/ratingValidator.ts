@@ -11,10 +11,13 @@ const requiredFields: (keyof Rating)[] = [
   "clientId",
   "workerId",
   "bookingId",
-  "ratings",
+  "subserviceName",
 ];
 
-const supportedFields: (keyof Rating)[] = requiredFields.concat([]);
+const supportedFields: (keyof Rating)[] = requiredFields.concat([
+  "ratings",
+  "overallRating",
+]);
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
@@ -22,6 +25,7 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "clientId":
     case "workerId":
     case "bookingId":
+    case "subserviceName":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }
@@ -34,7 +38,6 @@ const validateTypes: ValidationFunction = (field, value) => {
         "reliability",
         "knowledge",
         "value",
-        "overall",
       ];
 
       if (typeof value !== "object") {
@@ -48,10 +51,25 @@ const validateTypes: ValidationFunction = (field, value) => {
           typeof criteria?.feedback !== "string"
         ) {
           throw new Error(
-            `Field '${field}' must be an object with rating as a number and feedback as a string.`
+            `Field '${ratingCriteria}' must be an object with rating as a number and feedback as a string.`
           );
         }
       });
+      break;
+
+    case "overallRating":
+      if (typeof value !== "object") {
+        throw new Error(`Field '${field}' must be an object.`);
+      }
+
+      if (
+        typeof value?.rating !== "number" ||
+        typeof value?.feedback !== "string"
+      ) {
+        throw new Error(
+          `Field '${field}' must be an object with rating as a number and feedback as a string.`
+        );
+      }
       break;
   }
 };

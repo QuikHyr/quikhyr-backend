@@ -12,13 +12,14 @@ export interface Ratings {
   reliability?: IndividualRating;
   knowledge?: IndividualRating;
   value?: IndividualRating;
-  overall: IndividualRating;
 }
 
 export interface Rating {
   clientId: string;
   workerId: string;
   bookingId: string;
-  ratings: Ratings;
+  subserviceName: string;
+  ratings?: Ratings;
+  overallRating?: IndividualRating;
   timestamps: Timestamps;
 }

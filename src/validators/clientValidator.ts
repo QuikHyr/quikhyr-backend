@@ -55,7 +55,7 @@ const validateTypes: ValidationFunction = (field, value) => {
       break;
 
     case "gender":
-      if (!["Male", "Female", "Rather Not Say"].includes(value)) {
+      if (!["Male", "Female", "Other", "Rather Not Say"].includes(value)) {
         throw new Error(
           `Field '${field}' must be either "Male", "Female", or "Rather Not Say".`
         );

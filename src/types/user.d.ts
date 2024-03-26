@@ -9,7 +9,7 @@ export interface User {
   avatar: string;
   email: string;
   phone: string;
-  gender: "Male" | "Female" | "Rather Not Say";
+  gender: "Male" | "Female" | "Other" | "Rather Not Say";
   location: Location;
   pincode: string;
   isVerified: boolean;
@@ -21,4 +21,6 @@ export interface UserBasicInfo {
   name: string;
   avatar: string;
   pincode: string;
+  isVerified: boolean;
 }
+

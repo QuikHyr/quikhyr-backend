@@ -2,7 +2,10 @@ import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../firebase";
 import { Rating } from "../types/rating";
 import { CustomError } from "../errors";
-import { validateRating, validateRatingUpdate } from "../validators/ratingValidator";
+import {
+  validateRating,
+  validateRatingUpdate,
+} from "../validators/ratingValidator";
 
 // Create a new rating
 export const createRating = async (ratingData: Rating): Promise<Rating> => {
@@ -11,15 +14,36 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
 
     const ratingRef = db?.collection("ratings")?.doc();
 
-    const rating: Rating = {
-      ...ratingData,
-      timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
-    };
+    let weightedAvgRating = 0;
+    let rating = {};
+
+    if (ratingData?.ratings) {
+      weightedAvgRating =
+        (ratingData?.ratings?.quality?.rating || 0) * 0.2 +
+        (ratingData?.ratings?.efficiency?.rating || 0) * 0.15 +
+        (ratingData?.ratings?.reliability?.rating || 0) * 0.25 +
+        (ratingData?.ratings?.knowledge?.rating || 0) * 0.2 +
+        (ratingData?.ratings?.value?.rating || 0) * 0.2;
+
+      rating = {
+        ...ratingData,
+        overallRating: {
+          rating: weightedAvgRating,
+          feedback: ratingData?.overallRating?.feedback || "",
+        },
+        timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
+      };
+    } else {
+      rating = {
+        ...ratingData,
+        timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
+      };
+    }
 
     await ratingRef.set(rating);
     console.log("Rating created successfully!");
 
-    return rating;
+    return rating as Rating;
   } catch (error) {
     console.error("Error creating Rating:", error);
     throw new CustomError(`${error}`, 400);

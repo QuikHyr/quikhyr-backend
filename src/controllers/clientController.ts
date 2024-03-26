@@ -75,6 +75,7 @@ export const getClientBasicInfoById = async (
       name: clientData?.name,
       avatar: clientData?.avatar,
       pincode: clientData?.pincode,
+      isVerified: clientData?.isVerified,
     };
 
     return basicInfo;

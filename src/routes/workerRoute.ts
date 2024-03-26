@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   createWorker,
   deleteWorkerById,
-  getWorkerBasicInfoById,
+  getMostRatedWorkersBasicInfo,
   getWorkerById,
   getWorkers,
   updateWorkerById,
@@ -61,15 +61,15 @@ workerRouter.get("/:id", async (req, res, next) => {
   }
 });
 
-// Get worker's basic info by ID
-workerRouter.get("/:id/basic-info", async (req, res, next) => {
+// Get most rated worker's basic info
+workerRouter.get("/most-rated", async (req, res, next) => {
   try {
-    const worker = await getWorkerBasicInfoById(req?.params?.id);
+    const workers = await getMostRatedWorkersBasicInfo();
 
-    if (worker) {
-      res.status(200).json(worker);
+    if (workers?.length > 0) {
+      res.status(200).json(workers);
     } else {
-      res.status(404).send("Worker not found!");
+      res.status(404).send("No workers found!");
     }
   } catch (error) {
     next(error);
