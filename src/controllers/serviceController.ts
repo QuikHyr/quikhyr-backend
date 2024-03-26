@@ -1,17 +1,21 @@
 import { db } from "../firebase";
 import { Service } from "../types/service";
 import { CustomError } from "../errors";
-import { validateService, validateServiceUpdate } from "../validators/serviceValidator";
+import {
+  validateService,
+  validateServiceUpdate,
+} from "../validators/serviceValidator";
 
 // Create a new service
 export const createService = async (serviceData: Service): Promise<Service> => {
   try {
     validateService(serviceData);
 
-    const serviceRef = db?.collection("services")?.doc();
+    const serviceRef = await db?.collection("services")?.doc();
 
     const service: Service = {
       ...serviceData,
+      id: serviceRef?.id,
     };
 
     await serviceRef.set(service);
