@@ -11,7 +11,6 @@ const requiredFields: (keyof Subservice)[] = [
   "serviceId",
   "serviceName",
   "name",
-  "description",
   "tags",
 ];
 
@@ -23,7 +22,6 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "serviceId":
     case "serviceName":
     case "name":
-    case "description":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }

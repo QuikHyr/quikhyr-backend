@@ -17,6 +17,7 @@ export const createSubservice = async (
 
     const subservice: Subservice = {
       ...subserviceData,
+      id: subserviceRef?.id,
     };
 
     await subserviceRef.set(subservice);
