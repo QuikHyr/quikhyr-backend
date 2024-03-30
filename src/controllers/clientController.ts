@@ -108,9 +108,19 @@ export const updateClientById = async (
       throw new CustomError(`Field "id" cannot be updated!`, 400);
     }
 
+    let locationName;
+
+    if (clientData?.location) {
+      locationName = await getLocationNameFromCoordinates(
+        clientData?.location?.latitude,
+        clientData?.location?.longitude
+      );
+    }
+
     const clientRef = db?.collection("clients")?.doc(id);
     await clientRef.update({
       ...clientData,
+      locationName: locationName ?? "",
       timestamps: { updatedAt: Timestamp.now() },
     });
     console.log(`Client with ID: ${id} updated successfully!`);

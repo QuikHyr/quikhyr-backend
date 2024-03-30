@@ -147,10 +147,20 @@ export const updateWorkerById = async (
   try {
     validateWorkerUpdate(workerData);
 
+    let locationName;
+
+    if (workerData?.location) {
+      locationName = await getLocationNameFromCoordinates(
+        workerData?.location?.latitude,
+        workerData?.location?.longitude
+      );
+    }
+
     const workerRef = db?.collection("workers")?.doc(id);
 
     await workerRef.update({
       ...workerData,
+      locationName: locationName ?? "",
       timestamps: { updatedAt: Timestamp.now() },
     });
     console.log(`Worker with ID: ${id} updated successfully!`);
