@@ -1,4 +1,4 @@
-import { db } from "../firebase";
+import { db } from "../services/firebase";
 import { Service } from "../types/service";
 import { CustomError } from "../errors";
 import {

@@ -11,6 +11,7 @@ export interface User {
   phone: string;
   gender: "Male" | "Female" | "Other" | "Rather Not Say";
   location: Location;
+  locationName: string;
   pincode: string;
   isVerified: boolean;
   isActive: boolean;
@@ -23,4 +24,3 @@ export interface UserBasicInfo {
   pincode: string;
   isVerified: boolean;
 }
-

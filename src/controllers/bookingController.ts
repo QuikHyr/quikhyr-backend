@@ -1,7 +1,10 @@
 import { Timestamp } from "firebase-admin/firestore";
-import { db } from "../firebase";
+import { db } from "../services/firebase";
 import { Booking, CategorizedBookings } from "../types/booking";
-import { validateBooking, validateBookingUpdate } from "../validators/bookingValidator";
+import {
+  validateBooking,
+  validateBookingUpdate,
+} from "../validators/bookingValidator";
 import { CustomError } from "../errors";
 
 // Create a new booking

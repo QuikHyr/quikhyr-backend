@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore";
-import { db } from "../firebase";
+import { db } from "../services/firebase";
 import { Rating } from "../types/rating";
 import { CustomError } from "../errors";
 import {

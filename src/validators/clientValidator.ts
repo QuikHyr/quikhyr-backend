@@ -99,6 +99,8 @@ export const validateClientUpdate = (clientData: Partial<Client>): void => {
     } else {
       if (field === "timestamps") {
         throw new Error("Field 'timestamps' is auto-generated.");
+      } else if (field === "locationName") {
+        throw new Error("Field 'locationName' is auto-generated.");
       }
 
       validateTypes(field as keyof Client, clientData[field as keyof Client]);

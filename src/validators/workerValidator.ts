@@ -109,6 +109,8 @@ export const validateWorkerUpdate = (workerData: Partial<Worker>): void => {
     } else {
       if (field === "timestamps") {
         throw new Error("Field 'timestamps' is auto-generated.");
+      } else if (field === "locationName") {
+        throw new Error("Field 'locationName' is auto-generated.");
       }
 
       validateTypes(field as keyof Worker, workerData[field as keyof Worker]);

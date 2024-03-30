@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore";
-import { db } from "../firebase";
+import { db } from "../services/firebase";
 import {
   User as Client,
   UserBasicInfo as ClientBasicInfo,
@@ -9,16 +9,27 @@ import {
   validateClientUpdate,
 } from "../validators/clientValidator";
 import { CustomError } from "../errors";
+import {
+  getLocationNameFromCoordinates,
+  getLocationNameFromPincode,
+} from "../services/googleMapsService";
 
 // Create a new client
 export const createClient = async (clientData: Client): Promise<Client> => {
   try {
     validateClient(clientData);
 
+    const locationName =
+      (await getLocationNameFromCoordinates(
+        clientData?.location?.latitude,
+        clientData?.location?.longitude
+      )) ?? (await getLocationNameFromPincode(clientData?.pincode));
+
     const clientRef = db?.collection("clients")?.doc(clientData?.id);
 
     const client: Client = {
       ...clientData,
+      locationName: locationName ?? "",
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 

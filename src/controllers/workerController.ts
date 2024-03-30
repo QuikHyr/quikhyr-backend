@@ -1,21 +1,32 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { db } from "../firebase";
+import { db } from "../services/firebase";
 import { Worker, WorkerBasicInfo } from "../types/worker";
 import { CustomError } from "../errors";
 import {
   validateWorker,
   validateWorkerUpdate,
 } from "../validators/workerValidator";
+import {
+  getLocationNameFromCoordinates,
+  getLocationNameFromPincode,
+} from "../services/googleMapsService";
 
 // Create a new worker
 export const createWorker = async (workerData: Worker): Promise<Worker> => {
   try {
     validateWorker(workerData);
 
+    const locationName =
+      (await getLocationNameFromCoordinates(
+        workerData?.location?.latitude,
+        workerData?.location?.longitude
+      )) ?? (await getLocationNameFromPincode(workerData?.pincode));
+
     const workerRef = db?.collection("workers")?.doc(workerData?.id);
 
     const worker: Worker = {
       ...workerData,
+      locationName: locationName ?? "",
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
