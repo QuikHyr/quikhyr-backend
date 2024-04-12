@@ -7,7 +7,6 @@ import {
   getWorkers,
   updateWorkerById,
 } from "../controllers/workerController";
-import { Worker } from "../types/worker";
 
 const workerRouter = Router();
 

@@ -94,7 +94,12 @@ export const validateRatingUpdate = (ratingData: Partial<Rating>): void => {
     // Check for unsupported fields
     if (!supportedFields.includes(field as keyof Rating)) {
       throw new UnsupportedFieldError(field);
+    } else {
+      if (field === "timestamps") {
+        throw new Error("Field 'timestamps' is auto-generated.");
+      }
+
+      validateTypes(field as keyof Rating, ratingData[field as keyof Rating]);
     }
-    validateTypes(field as keyof Rating, ratingData[field as keyof Rating]);
   });
 };

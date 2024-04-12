@@ -45,6 +45,18 @@ const validateTypes: ValidationFunction = (field, value) => {
         );
       }
       break;
+
+    case "location":
+      if (
+        typeof value !== "object" ||
+        typeof value?.latitude !== "number" ||
+        typeof value?.longitude !== "number"
+      ) {
+        throw new Error(
+          `Field '${field}' must be an object with latitude and longitude as numbers.`
+        );
+      }
+      break;
   }
 };
 
@@ -68,8 +80,15 @@ export const validateBookingUpdate = (bookingData: Partial<Booking>): void => {
     // Check for unsupported fields
     if (!supportedFields.includes(field as keyof Booking)) {
       throw new UnsupportedFieldError(field);
-    }
+    } else {
+      if (field === "timestamps") {
+        throw new Error("Field 'timestamps' is auto-generated.");
+      }
 
-    validateTypes(field as keyof Booking, bookingData[field as keyof Booking]);
+      validateTypes(
+        field as keyof Booking,
+        bookingData[field as keyof Booking]
+      );
+    }
   });
 };

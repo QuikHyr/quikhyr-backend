@@ -6,7 +6,6 @@ import {
   getBookings,
   updateBookingById,
 } from "../controllers/bookingController";
-import { Booking } from "../types/booking";
 
 const bookingRouter = Router();
 

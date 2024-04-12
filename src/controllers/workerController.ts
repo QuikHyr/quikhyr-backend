@@ -1,4 +1,4 @@
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../services/firebase";
 import { Worker, WorkerBasicInfo } from "../types/worker";
 import { CustomError } from "../errors";
@@ -21,6 +21,8 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
         workerData?.location?.latitude,
         workerData?.location?.longitude
       )) ?? (await getLocationNameFromPincode(workerData?.pincode));
+
+    console.log(locationName);
 
     const workerRef = db?.collection("workers")?.doc(workerData?.id);
 
