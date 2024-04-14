@@ -8,6 +8,7 @@ import { errorHandler } from "./middlewares/errorHandler";
 import bookingRouter from "./routes/bookingRoute";
 import ratingRouter from "./routes/ratingRoute";
 import notificationRouter from "./routes/notificationRoute";
+import locationRouter from "./routes/locationRoute";
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
           <li style="margin-bottom: 10px;">GET /api/bookings</li>
           <li style="margin-bottom: 10px;">GET /api/ratings</li>
           <li style="margin-bottom: 10px;">GET /api/notifications</li>
+          <li style="margin-bottom: 10px;">GET /api/location</li>
         </ul>
       </div>
     </div>
@@ -44,6 +46,7 @@ app.use("/api/subservices", subserviceRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/ratings", ratingRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/location", locationRouter);
 
 app.use(errorHandler);
 
