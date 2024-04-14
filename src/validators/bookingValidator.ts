@@ -19,7 +19,11 @@ const requiredFields: (keyof Booking)[] = [
   "location",
 ];
 
-const supportedFields: (keyof Booking)[] = [...requiredFields, "timestamps"];
+const supportedFields: (keyof Booking)[] = [
+  ...requiredFields,
+  "locationName",
+  "timestamps",
+];
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
@@ -80,15 +84,10 @@ export const validateBookingUpdate = (bookingData: Partial<Booking>): void => {
     // Check for unsupported fields
     if (!supportedFields.includes(field as keyof Booking)) {
       throw new UnsupportedFieldError(field);
-    } else {
-      if (field === "timestamps") {
-        throw new Error("Field 'timestamps' is auto-generated.");
-      }
-
-      validateTypes(
-        field as keyof Booking,
-        bookingData[field as keyof Booking]
-      );
+    } else if (field === "timestamps") {
+      throw new Error("Field 'timestamps' is auto-generated.");
     }
+
+    validateTypes(field as keyof Booking, bookingData[field as keyof Booking]);
   });
 };

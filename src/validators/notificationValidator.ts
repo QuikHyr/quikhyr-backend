@@ -1,3 +1,4 @@
+import { ImmediateWorkRejection } from "./../types/notification.d";
 import {
   NumberFieldError,
   RequiredFieldError,
@@ -7,7 +8,7 @@ import {
 import {
   ImmediateWorkAlert,
   ImmediateWorkApprovalRequest,
-  ImmediateWorkConfirmationRejection,
+  ImmediateWorkApprovalRequest as ImmediateWorkConfirmation,
   Notification,
 } from "../types/notification";
 
@@ -15,7 +16,8 @@ type ValidationFunction = (
   field:
     | keyof ImmediateWorkAlert
     | keyof ImmediateWorkApprovalRequest
-    | keyof ImmediateWorkConfirmationRejection,
+    | keyof ImmediateWorkConfirmation
+    | keyof ImmediateWorkRejection,
   value: any
 ) => void;
 
@@ -50,7 +52,9 @@ const ImmediateWorkAlertSupportedFields: (keyof ImmediateWorkAlert)[] = [
 const ImmediateWorkApprovalRequestRequiredFields: (keyof ImmediateWorkApprovalRequest)[] =
   [
     ...ImmediateWorkAlertRequiredFields,
+    "workAlertId",
     "receiverIds",
+    "locationName",
     "dateTime",
     "ratePerUnit",
     "unit",
@@ -59,16 +63,26 @@ const ImmediateWorkApprovalRequestRequiredFields: (keyof ImmediateWorkApprovalRe
 const ImmediateWorkApprovalRequestSupportedFields: (keyof ImmediateWorkApprovalRequest)[] =
   [
     ...ImmediateWorkApprovalRequestRequiredFields,
-    ...ImmediateWorkAlertSupportedFields,
     "workApprovalRequestId",
+    "timestamps",
   ];
 
-// Immediate Work Confirmation/Rejection Fields
-const ImmediateWorkConfirmationRejectionRequiredFields: (keyof ImmediateWorkConfirmationRejection)[] =
-  [...NotificationRequiredFields, "workAlertId", "workApprovalRequestId"];
+// Immediate Work Confirmation Fields
+const ImmediateWorkConfirmationRequiredFields: (keyof ImmediateWorkConfirmation)[] =
+  [...ImmediateWorkApprovalRequestRequiredFields, "workApprovalRequestId"];
 
-const ImmediateWorkConfirmationRejectionSupportedFields: (keyof ImmediateWorkConfirmationRejection)[] =
-  [...ImmediateWorkConfirmationRejectionRequiredFields, "timestamps"];
+const ImmediateWorkConfirmationSupportedFields: (keyof ImmediateWorkConfirmation)[] =
+  [...ImmediateWorkConfirmationRequiredFields, "timestamps"];
+
+// Immediate Work Rejection Fields
+const ImmediateWorkRejectionRequiredFields: (keyof ImmediateWorkRejection)[] = [
+  ...NotificationRequiredFields,
+  "workAlertId",
+  "workApprovalRequestId",
+];
+
+const ImmediateWorkRejectionSupportedFields: (keyof ImmediateWorkRejection)[] =
+  [...ImmediateWorkRejectionRequiredFields, "timestamps"];
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks
@@ -241,34 +255,72 @@ export const validateImmediateWorkApprovalRequestUpdate = (
   });
 };
 
-// Immediate Work Confirmation/Rejection Validator
-export const validateImmediateWorkConfirmationRejection = (
-  immediateWorkConfirmationRejectionData: Partial<ImmediateWorkConfirmationRejection>
+// Immediate Work Confirmation Validator
+export const validateImmediateWorkConfirmation = (
+  immediateWorkConfirmationData: Partial<ImmediateWorkConfirmation>
 ): void => {
   // Check for missing required fields
-  ImmediateWorkConfirmationRejectionRequiredFields?.forEach((field) => {
+  ImmediateWorkConfirmationRequiredFields?.forEach((field) => {
     if (
-      immediateWorkConfirmationRejectionData[field] === undefined ||
-      immediateWorkConfirmationRejectionData[field] === null ||
-      immediateWorkConfirmationRejectionData[field] === ""
+      immediateWorkConfirmationData[field] === undefined ||
+      immediateWorkConfirmationData[field] === null ||
+      immediateWorkConfirmationData[field] === ""
     ) {
       throw new RequiredFieldError(field);
     }
   });
 
-  validateImmediateWorkConfirmationRejectionUpdate(
-    immediateWorkConfirmationRejectionData
-  );
+  validateImmediateWorkConfirmationUpdate(immediateWorkConfirmationData);
 };
 
-export const validateImmediateWorkConfirmationRejectionUpdate = (
-  immediateWorkConfirmationRejectionData: Partial<ImmediateWorkConfirmationRejection>
+export const validateImmediateWorkConfirmationUpdate = (
+  immediateWorkConfirmationData: Partial<ImmediateWorkConfirmation>
 ): void => {
-  Object.keys(immediateWorkConfirmationRejectionData)?.forEach((field) => {
+  Object.keys(immediateWorkConfirmationData)?.forEach((field) => {
     // Check for unsupported fields
     if (
-      !ImmediateWorkConfirmationRejectionSupportedFields.includes(
-        field as keyof ImmediateWorkConfirmationRejection
+      !ImmediateWorkConfirmationSupportedFields.includes(
+        field as keyof ImmediateWorkConfirmation
+      )
+    ) {
+      throw new UnsupportedFieldError(field);
+    } else if (field === "timestamps") {
+      throw new Error("Field 'timestamps' is auto-generated.");
+    }
+
+    validateTypes(
+      field as keyof ImmediateWorkConfirmation,
+      immediateWorkConfirmationData[field as keyof ImmediateWorkConfirmation]
+    );
+  });
+};
+
+// Immediate Work Rejection Validator
+export const validateImmediateWorkRejection = (
+  immediateWorkRejectionData: Partial<ImmediateWorkRejection>
+): void => {
+  // Check for missing required fields
+  ImmediateWorkRejectionRequiredFields?.forEach((field) => {
+    if (
+      immediateWorkRejectionData[field] === undefined ||
+      immediateWorkRejectionData[field] === null ||
+      immediateWorkRejectionData[field] === ""
+    ) {
+      throw new RequiredFieldError(field);
+    }
+  });
+
+  validateImmediateWorkRejectionUpdate(immediateWorkRejectionData);
+};
+
+export const validateImmediateWorkRejectionUpdate = (
+  immediateWorkRejectionData: Partial<ImmediateWorkRejection>
+): void => {
+  Object.keys(immediateWorkRejectionData)?.forEach((field) => {
+    // Check for unsupported fields
+    if (
+      !ImmediateWorkRejectionSupportedFields.includes(
+        field as keyof ImmediateWorkRejection
       )
     ) {
       throw new UnsupportedFieldError(field);
@@ -278,10 +330,8 @@ export const validateImmediateWorkConfirmationRejectionUpdate = (
       }
 
       validateTypes(
-        field as keyof ImmediateWorkConfirmationRejection,
-        immediateWorkConfirmationRejectionData[
-          field as keyof ImmediateWorkConfirmationRejection
-        ]
+        field as keyof ImmediateWorkRejection,
+        immediateWorkRejectionData[field as keyof ImmediateWorkRejection]
       );
     }
   });

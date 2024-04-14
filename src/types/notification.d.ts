@@ -16,6 +16,10 @@ export interface ImmediateWorkAlert extends Notification {
   locationName: string;
 }
 
+export interface ImmediateWorkAlertRejection extends Notification {
+  workAlertId: string;
+}
+
 export interface ImmediateWorkApprovalRequest extends ImmediateWorkAlert {
   workApprovalRequestId: string;
   dateTime: Timestamp;
@@ -23,11 +27,7 @@ export interface ImmediateWorkApprovalRequest extends ImmediateWorkAlert {
   unit: string;
 }
 
-export interface ImmediateWorkConfirmationRejection extends Notification {
+export interface ImmediateWorkRejection extends Notification {
   workAlertId: string;
   workApprovalRequestId: string;
-}
-
-export interface ImmediateWorkAlertRejection extends Notification {
-  workAlertId: string;
 }

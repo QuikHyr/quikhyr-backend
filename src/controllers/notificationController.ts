@@ -3,18 +3,22 @@ import { db } from "../services/firebase";
 import {
   ImmediateWorkAlert,
   ImmediateWorkApprovalRequest,
-  ImmediateWorkConfirmationRejection,
+  ImmediateWorkApprovalRequest as ImmediateWorkConfirmation,
   ImmediateWorkAlertRejection,
+  ImmediateWorkRejection,
 } from "../types/notification";
 import {
   validateImmediateWorkAlert,
   validateImmediateWorkAlertUpdate,
   validateImmediateWorkApprovalRequest,
-  validateImmediateWorkConfirmationRejection,
+  validateImmediateWorkConfirmation,
+  validateImmediateWorkRejection,
 } from "../validators/notificationValidator";
 import { CustomError } from "../errors";
 import * as admin from "firebase-admin";
 import { getLocationNameFromCoordinates } from "../services/googleMapsService";
+import { Booking } from "../types/booking";
+import { createBooking } from "./bookingController";
 
 // Create an Immediate Work Alert
 export const createImmediateWorkAlert = async (
@@ -195,10 +199,25 @@ export const createImmediateWorkApprovalRequest = async (
 
 // Create an Immediate Work Confirmation
 export const createImmediateWorkConfirmation = async (
-  immediateWorkConfirmationData: ImmediateWorkConfirmationRejection
-): Promise<ImmediateWorkConfirmationRejection> => {
+  immediateWorkConfirmationData: ImmediateWorkConfirmation
+): Promise<ImmediateWorkConfirmation> => {
   try {
-    validateImmediateWorkConfirmationRejection(immediateWorkConfirmationData);
+    validateImmediateWorkConfirmation(immediateWorkConfirmationData);
+
+    // Create a new booking
+    const bookingData: Partial<Booking> = {
+      clientId: immediateWorkConfirmationData?.senderId,
+      workerId: immediateWorkConfirmationData?.receiverIds[0],
+      subserviceId: immediateWorkConfirmationData?.subserviceId,
+      dateTime: immediateWorkConfirmationData?.dateTime,
+      ratePerUnit: immediateWorkConfirmationData?.ratePerUnit,
+      unit: immediateWorkConfirmationData?.unit,
+      status: "Pending",
+      location: immediateWorkConfirmationData?.location,
+      locationName: immediateWorkConfirmationData?.locationName,
+    };
+
+    await createBooking(bookingData as Booking);
 
     const transaction = db.runTransaction(async (t) => {
       // Send FCM notifications to the worker within the transaction
@@ -247,21 +266,24 @@ export const createImmediateWorkConfirmation = async (
 
     const result = await transaction;
 
-    console.log("Immediate Work Confirmation sent successfully!");
+    console.log("Immediate Work Confirmation sent.");
 
     return result;
   } catch (error) {
-    console.error("Error sending Immediate Work Confirmation:", error);
+    console.error(
+      "Error sending Immediate Work Confirmation and Booking creation:",
+      error
+    );
     throw new CustomError(`${error}`, 400);
   }
 };
 
 // Create an Immediate Work Rejection
 export const createImmediateWorkRejection = async (
-  immediateWorkRejectionData: ImmediateWorkConfirmationRejection
-): Promise<ImmediateWorkConfirmationRejection> => {
+  immediateWorkRejectionData: ImmediateWorkRejection
+): Promise<ImmediateWorkRejection> => {
   try {
-    validateImmediateWorkConfirmationRejection(immediateWorkRejectionData);
+    validateImmediateWorkRejection(immediateWorkRejectionData);
 
     const transaction = db.runTransaction(async (t) => {
       // Send FCM notifications to the worker within the transaction

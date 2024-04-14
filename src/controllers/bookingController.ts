@@ -10,15 +10,13 @@ import { getLocationNameFromCoordinates } from "../services/googleMapsService";
 
 // Create a new booking
 export const createBooking = async (bookingData: Booking): Promise<Booking> => {
-  try {
-    validateBooking(bookingData);
+  validateBooking(bookingData);
 
+  try {
     const locationName = await getLocationNameFromCoordinates(
       bookingData?.location?.latitude,
       bookingData?.location?.longitude
     );
-
-    const bookingRef = db?.collection("bookings")?.doc();
 
     const booking: Booking = {
       ...bookingData,
@@ -26,10 +24,35 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
-    await bookingRef.set(booking);
+    const result = await db?.runTransaction(async (transaction) => {
+      const bookingRef = db?.collection("bookings")?.doc();
+
+      // Update availability status and waiting list of worker
+      const workerRef = db?.collection("workers")?.doc(booking?.workerId);
+      const worker = await workerRef.get();
+
+      if (!worker.exists) {
+        throw new CustomError(
+          `Worker with ID: ${booking?.workerId} does not exist.`,
+          404
+        );
+      }
+
+      const waitingList = worker?.data()?.waitingList;
+
+      transaction.update(workerRef, {
+        waitingList: waitingList === 0 ? 1 : waitingList + 1,
+        available: false,
+      });
+
+      transaction.set(bookingRef, booking);
+
+      return booking;
+    });
+
     console.log("Booking created successfully!");
 
-    return booking;
+    return result;
   } catch (error) {
     console.error("Error creating Booking:", error);
     throw new CustomError(`${error}`, 400);
@@ -120,18 +143,42 @@ export const updateBookingById = async (
 // Delete a booking
 export const deleteBookingById = async (id: string): Promise<boolean> => {
   try {
-    const bookingRef = db?.collection("bookings")?.doc(id);
+    const result = await db?.runTransaction(async (transaction) => {
+      const bookingRef = db?.collection("bookings")?.doc(id);
 
-    const bookingSnapshot = await bookingRef.get();
-    if (!bookingSnapshot.exists) {
-      console.log(`Booking with ID: ${id} does not exist.`);
-      return false;
-    }
+      const booking = await bookingRef.get();
+      if (!booking.exists) {
+        console.log(`Booking with ID: ${id} does not exist.`);
+        return false;
+      }
 
-    await bookingRef.delete();
-    console.log(`Booking with ID: ${id} deleted successfully.`);
+      // Update availability status and waiting list of worker
+      const workerRef = db
+        ?.collection("workers")
+        ?.doc(booking?.data()?.workerId);
+      const worker = await workerRef.get();
 
-    return true;
+      if (!worker.exists) {
+        throw new CustomError(
+          `Worker with ID: ${booking?.data()?.workerId} does not exist.`,
+          404
+        );
+      }
+
+      const waitingList = worker?.data()?.waitingList;
+
+      transaction.update(workerRef, {
+        waitingList: waitingList - 1,
+        available: waitingList === 1 ? true : false,
+      });
+
+      transaction.delete(bookingRef);
+      console.log(`Booking with ID: ${id} deleted successfully.`);
+
+      return true;
+    });
+
+    return result;
   } catch (error) {
     console.error(`Error deleting Booking:`, error);
     return false;
