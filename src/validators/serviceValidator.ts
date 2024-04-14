@@ -14,7 +14,7 @@ const requiredFields: (keyof Service)[] = [
   "description",
 ];
 
-const supportedFields: (keyof Service)[] = requiredFields.concat([]);
+const supportedFields: (keyof Service)[] = [...requiredFields];
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks

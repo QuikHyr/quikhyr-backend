@@ -120,7 +120,7 @@ export const updateClientById = async (
     const clientRef = db?.collection("clients")?.doc(id);
     await clientRef.update({
       ...clientData,
-      locationName: locationName ?? "",
+      locationName: locationName ?? clientData?.locationName,
       timestamps: { updatedAt: Timestamp.now() },
     });
     console.log(`Client with ID: ${id} updated successfully!`);

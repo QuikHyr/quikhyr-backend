@@ -6,16 +6,23 @@ import {
   validateBookingUpdate,
 } from "../validators/bookingValidator";
 import { CustomError } from "../errors";
+import { getLocationNameFromCoordinates } from "../services/googleMapsService";
 
 // Create a new booking
 export const createBooking = async (bookingData: Booking): Promise<Booking> => {
   try {
     validateBooking(bookingData);
 
+    const locationName = await getLocationNameFromCoordinates(
+      bookingData?.location?.latitude,
+      bookingData?.location?.longitude
+    );
+
     const bookingRef = db?.collection("bookings")?.doc();
 
     const booking: Booking = {
       ...bookingData,
+      locationName: locationName ?? "",
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 

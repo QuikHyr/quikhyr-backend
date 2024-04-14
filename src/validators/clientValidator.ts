@@ -24,7 +24,12 @@ const requiredFields: (keyof Client)[] = [
   "isVerified",
 ];
 
-const supportedFields: (keyof Client)[] = requiredFields.concat(["age"]);
+const supportedFields: (keyof Client)[] = [
+  ...requiredFields,
+  "age",
+  "locationName",
+  "timestamps",
+];
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks

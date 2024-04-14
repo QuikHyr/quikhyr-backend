@@ -19,7 +19,7 @@ const requiredFields: (keyof Booking)[] = [
   "location",
 ];
 
-const supportedFields: (keyof Booking)[] = requiredFields.concat([]);
+const supportedFields: (keyof Booking)[] = [...requiredFields, "timestamps"];
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks

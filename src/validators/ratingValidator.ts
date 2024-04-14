@@ -14,10 +14,12 @@ const requiredFields: (keyof Rating)[] = [
   "subserviceName",
 ];
 
-const supportedFields: (keyof Rating)[] = requiredFields.concat([
+const supportedFields: (keyof Rating)[] = [
+  ...requiredFields,
   "ratings",
   "overallRating",
-]);
+  "timestamps"
+];
 
 const validateTypes: ValidationFunction = (field, value) => {
   // Type validity checks

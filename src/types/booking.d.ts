@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore";
-import { Timestamps } from "./global";
+import { Location, Timestamps } from "./global";
 
 export interface CategorizedBookings {
   currentBookings: Booking[];
@@ -15,5 +15,6 @@ export interface Booking {
   unit: string;
   status: "Pending" | "Completed" | "Not Completed";
   location: Location;
+  locationName: string;
   timestamps: Timestamps;
 }
