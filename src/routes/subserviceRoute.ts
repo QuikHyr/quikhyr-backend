@@ -27,8 +27,9 @@ subserviceRouter.post("/", async (req, res, next) => {
 // Get all subservices as data or filtered by serviceId
 subserviceRouter.get("/", async (req, res, next) => {
   try {
-    const { serviceId } = req?.query as {
+    const { serviceId, workerId } = req?.query as {
       serviceId?: string;
+      workerId?: string;
     };
 
     const subservices = await getSubservices(serviceId);

@@ -30,15 +30,17 @@ export const createSubservice = async (
   }
 };
 
-// Get all subservices as data or filtered by serviceId
+// Get all subservices as data or filtered by serviceId, workerId
 export const getSubservices = async (
-  serviceId?: string
+  serviceId?: string,
+  workerId?: string
 ): Promise<Subservice[] | null> => {
   try {
     let query: FirebaseFirestore.Query = await db?.collection("subservices");
 
     // Filter subservices by serviceId, if provided
     if (serviceId) query = query?.where("serviceId", "==", serviceId);
+    if (workerId) query = query?.where("workerId", "==", workerId);
 
     const querySnapshot = await query?.get();
     const subservices: Subservice[] = querySnapshot?.docs.map(
