@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../services/firebase";
-import { Booking, CategorizedBookings } from "../types/booking";
+import { Booking, BookingInfo, CategorizedBookings } from "../types/booking";
 import {
   validateBooking,
   validateBookingUpdate,
@@ -18,9 +18,47 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
       bookingData?.location?.longitude
     );
 
+    // Fetch associated worker, subservice, and service
+    const workerRef = db?.collection("workers")?.doc(bookingData?.workerId);
+    const worker = await workerRef.get();
+
+    if (!worker.exists) {
+      throw new CustomError(
+        `Worker with ID: ${bookingData?.workerId} does not exist.`,
+        404
+      );
+    }
+
+    const subserviceRef = db
+      ?.collection("subservices")
+      ?.doc(bookingData?.subserviceId);
+    const subservice = await subserviceRef.get();
+
+    if (!subservice.exists) {
+      throw new CustomError(
+        `Subservice with ID: ${bookingData?.subserviceId} does not exist.`,
+        404
+      );
+    }
+
+    const serviceRef = db
+      ?.collection("services")
+      ?.doc(subservice?.data()?.serviceId);
+    const service = await serviceRef.get();
+
+    if (!service.exists) {
+      throw new CustomError(
+        `Service with ID: ${subservice?.data()?.serviceId} does not exist.`,
+        404
+      );
+    }
+
     const booking: Booking = {
       ...bookingData,
       locationName: locationName ?? "",
+      workerName: worker?.data()?.name,
+      subserviceName: subservice?.data()?.name,
+      serviceAvatar: service?.data()?.avatar,
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };
 
@@ -28,16 +66,6 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
       const bookingRef = db?.collection("bookings")?.doc();
 
       // Update availability status and waiting list of worker
-      const workerRef = db?.collection("workers")?.doc(booking?.workerId);
-      const worker = await workerRef.get();
-
-      if (!worker.exists) {
-        throw new CustomError(
-          `Worker with ID: ${booking?.workerId} does not exist.`,
-          404
-        );
-      }
-
       const waitingList = worker?.data()?.waitingList;
 
       transaction.update(workerRef, {
@@ -74,13 +102,39 @@ export const getBookings = async (
     const querySnapshot = await query?.get();
 
     if (clientId || workerId) {
-      const currentBookings: Booking[] = querySnapshot?.docs?.map(
-        (booking) => booking.data() as Booking
+      const currentBookings: BookingInfo[] = querySnapshot?.docs?.map(
+        (booking) => {
+          const bookingData = booking.data() as Booking;
+          const bookingInfo: BookingInfo = {
+            workerName: bookingData?.workerName,
+            subserviceName: bookingData?.subserviceName,
+            serviceAvatar: bookingData?.serviceAvatar,
+            locationName: bookingData?.locationName,
+            dateTime: bookingData?.dateTime,
+            ratePerUnit: bookingData?.ratePerUnit,
+            unit: bookingData?.unit,
+            status: bookingData?.status,
+          };
+
+          return bookingInfo;
+        }
       );
 
-      const pastBookings: Booking[] = querySnapshot?.docs.map(
-        (booking) => booking.data() as Booking
-      );
+      const pastBookings: BookingInfo[] = querySnapshot?.docs.map((booking) => {
+        const bookingData = booking.data() as Booking;
+        const bookingInfo: BookingInfo = {
+          workerName: bookingData?.workerName,
+          subserviceName: bookingData?.subserviceName,
+          serviceAvatar: bookingData?.serviceAvatar,
+          locationName: bookingData?.locationName,
+          dateTime: bookingData?.dateTime,
+          ratePerUnit: bookingData?.ratePerUnit,
+          unit: bookingData?.unit,
+          status: bookingData?.status,
+        };
+
+        return bookingInfo;
+      });
 
       const categorizedBookings: CategorizedBookings = {
         currentBookings,

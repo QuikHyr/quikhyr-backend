@@ -22,6 +22,9 @@ const requiredFields: (keyof Booking)[] = [
 const supportedFields: (keyof Booking)[] = [
   ...requiredFields,
   "locationName",
+  "subserviceName",
+  "workerName",
+  "serviceAvatar",
   "timestamps",
 ];
 
@@ -30,6 +33,7 @@ const validateTypes: ValidationFunction = (field, value) => {
   switch (field) {
     case "clientId":
     case "workerId":
+    case "subserviceId":
     case "unit":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
@@ -84,7 +88,19 @@ export const validateBookingUpdate = (bookingData: Partial<Booking>): void => {
     // Check for unsupported fields
     if (!supportedFields.includes(field as keyof Booking)) {
       throw new UnsupportedFieldError(field);
-    } else if (field === "timestamps") {
+    } else if (field === "locationName") {
+      throw new Error("Field 'locationName' is auto-generated.");
+    }
+    else if (field === "subserviceName") {
+      throw new Error("Field 'subserviceName' is auto-generated.");
+    }
+    else if (field === "workerName") {
+      throw new Error("Field 'workerName' is auto-generated.");
+    }
+    else if (field === "serviceAvatar") {
+      throw new Error("Field 'serviceAvatar' is auto-generated.");
+    }
+    else if (field === "timestamps") {
       throw new Error("Field 'timestamps' is auto-generated.");
     }
 

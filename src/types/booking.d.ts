@@ -2,19 +2,25 @@ import { Timestamp } from "firebase-admin/firestore";
 import { Location, Timestamps } from "./global";
 
 export interface CategorizedBookings {
-  currentBookings: Booking[];
-  pastBookings: Booking[];
+  currentBookings: BookingInfo[];
+  pastBookings: BookingInfo[];
 }
 
-export interface Booking {
+export interface Booking extends BookingInfo {
   clientId: string;
   workerId: string;
   subserviceId: string;
+  location: Location;
+  timestamps: Timestamps;
+}
+
+export interface BookingInfo {
+  workerName: string;
+  subserviceName: string;
+  serviceAvatar: string;
+  locationName: string;
   dateTime: Timestamp;
   ratePerUnit: number;
   unit: string;
   status: "Pending" | "Completed" | "Not Completed";
-  location: Location;
-  locationName: string;
-  timestamps: Timestamps;
 }
