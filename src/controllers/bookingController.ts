@@ -53,7 +53,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
       );
     }
 
-    const booking: Booking = {
+    let booking: Booking = {
       ...bookingData,
       locationName: locationName ?? "",
       workerName: worker?.data()?.name,
@@ -65,6 +65,8 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
 
     const result = await db?.runTransaction(async (transaction) => {
       const bookingRef = db?.collection("bookings")?.doc();
+
+      booking = { ...booking, id: bookingRef?.id };
 
       // Update availability status and waiting list of worker
       const waitingList = worker?.data()?.waitingList;
@@ -106,6 +108,7 @@ export const getBookings = async (
     ): BookingInfo | undefined => {
       const bookingData = booking.data() as Booking;
       return {
+        id: bookingData?.id,
         workerName: bookingData?.workerName,
         serviceName: bookingData?.serviceName,
         subserviceName: bookingData?.subserviceName,
@@ -134,13 +137,11 @@ export const getBookings = async (
           (booking) =>
             booking?.status === "Pending" || booking?.status === "Not Completed"
         )
-        .filter(isBookingInfo)
-        .sort((a, b) => a.dateTime.toMillis() - b.dateTime.toMillis());
+        .filter(isBookingInfo);
 
       const pastBookings: BookingInfo[] = bookings
         .filter((booking) => booking?.status === "Completed")
-        .filter(isBookingInfo)
-        .sort((a, b) => a.dateTime.toMillis() - b.dateTime.toMillis());
+        .filter(isBookingInfo);
 
       return { currentBookings, pastBookings };
     } else {

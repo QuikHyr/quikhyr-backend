@@ -7,7 +7,6 @@ export interface CategorizedBookings {
 }
 
 export interface Booking extends BookingInfo {
-  id?: string;
   clientId: string;
   workerId: string;
   subserviceId: string;
@@ -16,6 +15,7 @@ export interface Booking extends BookingInfo {
 }
 
 export interface BookingInfo {
+  id: string;
   workerName: string;
   serviceName: string;
   subserviceName: string;
