@@ -57,6 +57,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
       ...bookingData,
       locationName: locationName ?? "",
       workerName: worker?.data()?.name,
+      serviceName: service?.data()?.name,
       subserviceName: subservice?.data()?.name,
       serviceAvatar: service?.data()?.avatar,
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
@@ -99,56 +100,51 @@ export const getBookings = async (
     if (clientId) query = query?.where("clientId", "==", clientId);
     if (workerId) query = query?.where("workerId", "==", workerId);
 
-    const querySnapshot = await query?.get();
+    // Map booking documents to BookingInfo objects
+    const mapBookingToInfo = (
+      booking: FirebaseFirestore.QueryDocumentSnapshot
+    ): BookingInfo | undefined => {
+      const bookingData = booking.data() as Booking;
+      return {
+        workerName: bookingData?.workerName,
+        serviceName: bookingData?.serviceName,
+        subserviceName: bookingData?.subserviceName,
+        serviceAvatar: bookingData?.serviceAvatar,
+        locationName: bookingData?.locationName,
+        dateTime: bookingData?.dateTime,
+        ratePerUnit: bookingData?.ratePerUnit,
+        unit: bookingData?.unit,
+        status: bookingData?.status,
+      };
+    };
+
+    const querySnapshot = await query.get();
+    const bookings = querySnapshot.docs.map(mapBookingToInfo).filter(Boolean);
+
+    // Type guard for BookingInfo
+    const isBookingInfo = (
+      item: BookingInfo | undefined
+    ): item is BookingInfo => {
+      return !!item;
+    };
 
     if (clientId || workerId) {
-      const currentBookings: BookingInfo[] = querySnapshot?.docs?.map(
-        (booking) => {
-          const bookingData = booking.data() as Booking;
-          const bookingInfo: BookingInfo = {
-            workerName: bookingData?.workerName,
-            subserviceName: bookingData?.subserviceName,
-            serviceAvatar: bookingData?.serviceAvatar,
-            locationName: bookingData?.locationName,
-            dateTime: bookingData?.dateTime,
-            ratePerUnit: bookingData?.ratePerUnit,
-            unit: bookingData?.unit,
-            status: bookingData?.status,
-          };
+      const currentBookings: BookingInfo[] = bookings
+        .filter(
+          (booking) =>
+            booking?.status === "Pending" || booking?.status === "Not Completed"
+        )
+        .filter(isBookingInfo)
+        .sort((a, b) => a.dateTime.toMillis() - b.dateTime.toMillis());
 
-          return bookingInfo;
-        }
-      );
+      const pastBookings: BookingInfo[] = bookings
+        .filter((booking) => booking?.status === "Completed")
+        .filter(isBookingInfo)
+        .sort((a, b) => a.dateTime.toMillis() - b.dateTime.toMillis());
 
-      const pastBookings: BookingInfo[] = querySnapshot?.docs.map((booking) => {
-        const bookingData = booking.data() as Booking;
-        const bookingInfo: BookingInfo = {
-          workerName: bookingData?.workerName,
-          subserviceName: bookingData?.subserviceName,
-          serviceAvatar: bookingData?.serviceAvatar,
-          locationName: bookingData?.locationName,
-          dateTime: bookingData?.dateTime,
-          ratePerUnit: bookingData?.ratePerUnit,
-          unit: bookingData?.unit,
-          status: bookingData?.status,
-        };
-
-        return bookingInfo;
-      });
-
-      const categorizedBookings: CategorizedBookings = {
-        currentBookings,
-        pastBookings,
-      };
-
-      return categorizedBookings;
+      return { currentBookings, pastBookings };
     } else {
-      const querySnapshot = await query?.get();
-      const bookingIds: string[] = querySnapshot?.docs.map(
-        (booking) => booking?.id
-      );
-
-      return bookingIds;
+      return querySnapshot.docs.map((booking) => booking.id);
     }
   } catch (error) {
     console.error("Error getting bookings:", error);
