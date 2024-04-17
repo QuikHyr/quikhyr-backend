@@ -50,7 +50,7 @@ export const getSubservices = async (
         console.log(`Worker with ID: ${workerId} does not exist.`);
         return null;
       } else {
-        subserviceIds = worker?.data()?.subserviceIds;
+        subserviceIds = [...worker?.data()?.subserviceIds];
       }
 
       query = query?.where("id", "in", subserviceIds);
