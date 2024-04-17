@@ -38,9 +38,23 @@ export const getSubservices = async (
   try {
     let query: FirebaseFirestore.Query = await db?.collection("subservices");
 
-    // Filter subservices by serviceId, if provided
+    // Filter subservices by serviceId if provided
     if (serviceId) query = query?.where("serviceId", "==", serviceId);
-    if (workerId) query = query?.where("workerId", "==", workerId);
+
+    // Filter subservices by workerId if provided
+    if (workerId) {
+      let worker = await db?.collection("workers")?.doc(workerId)?.get();
+      let subserviceIds: string[] = [];
+
+      if (!worker.exists) {
+        console.log(`Worker with ID: ${workerId} does not exist.`);
+        return null;
+      } else {
+        subserviceIds = worker?.data()?.subserviceIds;
+      }
+
+      query = query?.where("id", "in", subserviceIds);
+    }
 
     const querySnapshot = await query?.get();
     const subservices: Subservice[] = querySnapshot?.docs.map(

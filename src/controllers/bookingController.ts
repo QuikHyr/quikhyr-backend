@@ -102,6 +102,8 @@ export const getBookings = async (
     if (clientId) query = query?.where("clientId", "==", clientId);
     if (workerId) query = query?.where("workerId", "==", workerId);
 
+    query = query?.orderBy("dateTime", "asc");
+
     // Map booking documents to BookingInfo objects
     const mapBookingToInfo = (
       booking: FirebaseFirestore.QueryDocumentSnapshot
