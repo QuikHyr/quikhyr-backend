@@ -10,9 +10,8 @@ import { getLocationNameFromCoordinates } from "../services/googleMapsService";
 
 // Create a new booking
 export const createBooking = async (bookingData: Booking): Promise<Booking> => {
-  validateBooking(bookingData);
-
   try {
+    validateBooking(bookingData);
     const locationName = await getLocationNameFromCoordinates(
       bookingData?.location?.latitude,
       bookingData?.location?.longitude
@@ -55,6 +54,9 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
 
     let booking: Booking = {
       ...bookingData,
+      dateTime: Timestamp.fromMillis(
+        new Date(bookingData?.dateTime as string).getTime()
+      ),
       locationName: locationName ?? "",
       workerName: worker?.data()?.name,
       serviceName: service?.data()?.name,

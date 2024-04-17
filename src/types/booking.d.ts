@@ -21,7 +21,7 @@ export interface BookingInfo {
   subserviceName: string;
   serviceAvatar: string;
   locationName: string;
-  dateTime: Timestamp;
+  dateTime: Timestamp | string;
   ratePerUnit: number;
   unit: string;
   status: "Pending" | "Completed" | "Not Completed";

@@ -209,7 +209,9 @@ export const createImmediateWorkConfirmation = async (
       clientId: immediateWorkConfirmationData?.senderId,
       workerId: immediateWorkConfirmationData?.receiverIds[0],
       subserviceId: immediateWorkConfirmationData?.subserviceId,
-      dateTime: immediateWorkConfirmationData?.dateTime,
+      dateTime: Timestamp.fromMillis(
+        new Date(immediateWorkConfirmationData?.dateTime as string).getTime()
+      ),
       ratePerUnit: immediateWorkConfirmationData?.ratePerUnit,
       unit: immediateWorkConfirmationData?.unit,
       status: "Pending",
