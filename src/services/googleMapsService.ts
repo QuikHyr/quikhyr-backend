@@ -1,13 +1,30 @@
 import { createClient } from "@google/maps";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
+
+const googleMapsAPIKey = process.env.GOOGLE_MAPS_API_KEY;
+if (!googleMapsAPIKey) {
+  throw new Error("Missing environment variable: GOOGLE_MAPS_API_KEY");
+}
 
 const googleMapsClient = createClient({
-  key: process.env.GOOGLE_MAPS_API_KEY ?? "",
+  key: googleMapsAPIKey,
   Promise: Promise,
 });
 
-// Get location name from coordinates
+const extractLocationName = (addressComponents: any[]): string => {
+  const city = addressComponents?.find((component) =>
+    component?.types?.includes("locality")
+  );
+  const town = addressComponents?.find((component) =>
+    component?.types?.includes("administrative_area_level_3")
+  );
+  const cityName = city ? city.long_name : "";
+  const townName = town ? town.long_name : "";
+  return cityName || townName;
+};
+
 export const getLocationNameFromCoordinates = async (
   lat: number,
   lng: number
@@ -19,20 +36,8 @@ export const getLocationNameFromCoordinates = async (
 
     if (response?.json?.results && response?.json?.results.length > 0) {
       const addressComponents = response?.json?.results[0]?.address_components;
-      const city = addressComponents?.find((component) =>
-        component?.types?.includes("locality")
-      );
-      const town = addressComponents?.find((component) =>
-        component?.types?.includes("administrative_area_level_3")
-      );
-      const cityName = city ? city.long_name : "";
-      const townName = town ? town.long_name : "";
-      const locationName = cityName || townName;
-
-      console.log(`City/Town: ${locationName}`);
-      return locationName;
+      return extractLocationName(addressComponents);
     } else {
-      console.log("City/Town not identified!");
       return null;
     }
   } catch (error) {
@@ -41,7 +46,6 @@ export const getLocationNameFromCoordinates = async (
   }
 };
 
-// Get location name from pincode
 export const getLocationNameFromPincode = async (
   pincode: string
 ): Promise<string | null> => {
@@ -52,20 +56,8 @@ export const getLocationNameFromPincode = async (
 
     if (response?.json?.results && response?.json?.results.length > 0) {
       const addressComponents = response?.json?.results[0]?.address_components;
-      const city = addressComponents?.find((component) =>
-        component?.types?.includes("locality")
-      );
-      const town = addressComponents?.find((component) =>
-        component?.types?.includes("administrative_area_level_3")
-      );
-      const cityName = city ? city.long_name : "";
-      const townName = town ? town.long_name : "";
-      const locationName = cityName || townName;
-
-      console.log(`City/Town: ${locationName}`);
-      return locationName;
+      return extractLocationName(addressComponents);
     } else {
-      console.log("City/Town not identified!");
       return null;
     }
   } catch (error) {

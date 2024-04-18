@@ -8,7 +8,7 @@ import {
 import { CustomError } from "../errors";
 import { getLocationNameFromCoordinates } from "../services/googleMapsService";
 
-// Helper function to get a document
+// Helper function to get a document and its reference
 async function getDocument(collection: string, id: string) {
   const docRef = db?.collection(collection)?.doc(id);
   const doc = await docRef.get();

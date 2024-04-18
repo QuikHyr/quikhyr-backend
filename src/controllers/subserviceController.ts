@@ -6,6 +6,21 @@ import {
 } from "../validators/subserviceValidator";
 import { CustomError } from "../errors";
 
+// Helper function to get a document and its reference
+async function getDocument(collection: string, id: string) {
+  const docRef = db?.collection(collection)?.doc(id);
+  const doc = await docRef.get();
+
+  if (!doc.exists) {
+    throw new CustomError(
+      `Document with ID: ${id} does not exist in ${collection}.`,
+      404
+    );
+  }
+
+  return { doc, docRef };
+}
+
 // Create a new subservice
 export const createSubservice = async (
   subserviceData: Subservice
@@ -43,15 +58,8 @@ export const getSubservices = async (
 
     // Filter subservices by workerId if provided
     if (workerId) {
-      let worker = await db?.collection("workers")?.doc(workerId)?.get();
-      let subserviceIds: string[] = [];
-
-      if (!worker.exists) {
-        console.log(`Worker with ID: ${workerId} does not exist.`);
-        return null;
-      } else {
-        subserviceIds = [...worker?.data()?.subserviceIds];
-      }
+      const { doc: worker } = await getDocument("workers", workerId);
+      let subserviceIds: string[] = [...worker?.data()?.subserviceIds];
 
       query = query?.where("id", "in", subserviceIds);
     }
@@ -74,9 +82,7 @@ export const getSubservices = async (
 // Get a subservice by ID
 export const getSubserviceById = async (id: string): Promise<Subservice> => {
   try {
-    const subserviceRef = db?.collection("subservices")?.doc(id);
-    const subservice = await subserviceRef.get();
-
+    const { doc: subservice } = await getDocument("subservices", id);
     return subservice?.data() as Subservice;
   } catch (error) {
     console.error("Error getting subservice:", error);
@@ -92,7 +98,7 @@ export const updateSubserviceById = async (
   try {
     validateSubserviceUpdate(subserviceData);
 
-    const subserviceRef = db?.collection("subservices")?.doc(id);
+    const { docRef: subserviceRef } = await getDocument("subservices", id);
 
     // Update the subservice
     await subserviceRef.update({
@@ -110,13 +116,7 @@ export const updateSubserviceById = async (
 // Delete a subservice by ID
 export const deleteSubserviceById = async (id: string): Promise<boolean> => {
   try {
-    const subserviceRef = db?.collection("subservices")?.doc(id);
-
-    const subserviceSnapshot = await subserviceRef.get();
-    if (!subserviceSnapshot.exists) {
-      console.log(`Subservice with ID: ${id} does not exist.`);
-      return false;
-    }
+    const { docRef: subserviceRef } = await getDocument("subservices", id);
 
     await subserviceRef.delete();
     console.log(`Subservice with ID: ${id} deleted successfully!`);

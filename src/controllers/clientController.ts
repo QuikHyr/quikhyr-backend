@@ -14,6 +14,11 @@ import {
   getLocationNameFromPincode,
 } from "../services/googleMapsService";
 
+// Helper function to get a document and its reference
+const getDocument = async (collection: string, id: string) => {
+  return db?.collection(collection)?.doc(id);
+};
+
 // Create a new client
 export const createClient = async (clientData: Client): Promise<Client> => {
   try {
@@ -25,7 +30,7 @@ export const createClient = async (clientData: Client): Promise<Client> => {
         clientData?.location?.longitude
       )) ?? (await getLocationNameFromPincode(clientData?.pincode));
 
-    const clientRef = db?.collection("clients")?.doc(clientData?.id);
+    const clientRef = await getDocument("clients", clientData?.id);
 
     const client: Client = {
       ...clientData,
@@ -59,7 +64,7 @@ export const getClients = async (): Promise<string[]> => {
 // Get a client by ID
 export const getClientById = async (id: string): Promise<Client> => {
   try {
-    const clientRef = db?.collection("clients")?.doc(id);
+    const clientRef = await getDocument("clients", id);
     const client = await clientRef.get();
 
     return client?.data() as Client;
@@ -117,7 +122,7 @@ export const updateClientById = async (
       );
     }
 
-    const clientRef = db?.collection("clients")?.doc(id);
+    const clientRef = await getDocument("clients", id);
     await clientRef.update({
       ...clientData,
       locationName: locationName ?? clientData?.locationName,
@@ -135,7 +140,7 @@ export const updateClientById = async (
 // Delete a client by ID
 export const deleteClientById = async (id: string): Promise<boolean> => {
   try {
-    const clientRef = db?.collection("clients")?.doc(id);
+    const clientRef = await getDocument("clients", id);
 
     const clientSnapshot = await clientRef.get();
     if (!clientSnapshot.exists) {

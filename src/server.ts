@@ -1,24 +1,28 @@
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import cors from "cors";
+import { errorHandler } from "./middlewares/errorHandler";
+import { config } from "dotenv";
+
 import clientRouter from "./routes/clientRoute";
 import workerRouter from "./routes/workerRoute";
 import subserviceRouter from "./routes/subserviceRoute";
 import serviceRouter from "./routes/serviceRoute";
-import { errorHandler } from "./middlewares/errorHandler";
 import bookingRouter from "./routes/bookingRoute";
 import ratingRouter from "./routes/ratingRoute";
 import notificationRouter from "./routes/notificationRoute";
 import locationRouter from "./routes/locationRoute";
 
+config();
+
 const app: Express = express();
-const port = process.env.PORT || 3001;
+const port: string | number = process.env.PORT || 3001;
 
 // Middlewares
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send(`
     <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
       <div style="background-color: #3399CC; color: black; padding: 48px; border-radius: 32px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); font-family: 'Poppins', sans-serif;">

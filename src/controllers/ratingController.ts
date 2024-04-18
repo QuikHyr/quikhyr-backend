@@ -7,12 +7,27 @@ import {
   validateRatingUpdate,
 } from "../validators/ratingValidator";
 
+// Helper function to get a document and its reference
+async function getDocument(collection: string, id: string) {
+  const docRef = db?.collection(collection)?.doc(id);
+  const doc = await docRef.get();
+
+  if (!doc.exists) {
+    throw new CustomError(
+      `Document with ID: ${id} does not exist in ${collection}.`,
+      404
+    );
+  }
+
+  return { doc, docRef };
+}
+
 // Create a new rating
 export const createRating = async (ratingData: Rating): Promise<Rating> => {
   try {
     validateRating(ratingData);
 
-    const ratingRef = db?.collection("ratings")?.doc();
+    const { docRef: ratingRef } = await getDocument("ratings", "");
 
     let weightedAvgRating = 0;
     let rating = {};
@@ -88,8 +103,7 @@ export const getRatings = async (
 // Get a rating by ID
 export const getRatingById = async (id: string): Promise<Rating> => {
   try {
-    const ratingRef = db?.collection("ratings")?.doc(id);
-    const rating = await ratingRef.get();
+    const { doc: rating } = await getDocument("ratings", id);
 
     return rating?.data() as Rating;
   } catch (error) {
@@ -106,7 +120,7 @@ export const updateRatingById = async (
   try {
     validateRatingUpdate(ratingData);
 
-    const ratingRef = db?.collection("ratings")?.doc(id);
+    const { docRef: ratingRef } = await getDocument("ratings", id);
 
     await ratingRef.update({
       ...ratingData,
@@ -126,7 +140,7 @@ export const updateRatingById = async (
 // Delete a rating
 export const deleteRatingById = async (id: string): Promise<boolean> => {
   try {
-    const ratingRef = db?.collection("ratings")?.doc(id);
+    const { docRef: ratingRef } = await getDocument("ratings", id);
 
     const ratingSnapshot = await ratingRef.get();
     if (!ratingSnapshot.exists) {

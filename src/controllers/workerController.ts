@@ -11,6 +11,21 @@ import {
   getLocationNameFromPincode,
 } from "../services/googleMapsService";
 
+// Helper function to get a document and its reference
+async function getDocument(collection: string, id: string) {
+  const docRef = db?.collection(collection)?.doc(id);
+  const doc = await docRef.get();
+
+  if (!doc.exists) {
+    throw new CustomError(
+      `Document with ID: ${id} does not exist in ${collection}.`,
+      404
+    );
+  }
+
+  return { doc, docRef };
+}
+
 // Create a new worker
 export const createWorker = async (workerData: Worker): Promise<Worker> => {
   try {
@@ -22,9 +37,7 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
         workerData?.location?.longitude
       )) ?? (await getLocationNameFromPincode(workerData?.pincode));
 
-    console.log(locationName);
-
-    const workerRef = db?.collection("workers")?.doc(workerData?.id);
+    const { docRef: workerRef } = await getDocument("workers", workerData?.id);
 
     const worker: Worker = {
       ...workerData,
@@ -78,8 +91,7 @@ export const getWorkers = async (
 // Get a worker by ID
 export const getWorkerById = async (id: string): Promise<Worker> => {
   try {
-    const workerRef = db?.collection("workers")?.doc(id);
-    const worker = await workerRef.get();
+    const { doc: worker } = await getDocument("workers", id);
 
     return worker?.data() as Worker;
   } catch (error) {
@@ -158,7 +170,7 @@ export const updateWorkerById = async (
       );
     }
 
-    const workerRef = db?.collection("workers")?.doc(id);
+    const { docRef: workerRef } = await getDocument("workers", id);
 
     await workerRef.update({
       ...workerData,
@@ -177,13 +189,7 @@ export const updateWorkerById = async (
 // Delete a worker by ID
 export const deleteWorkerById = async (id: string): Promise<boolean> => {
   try {
-    const workerRef = db?.collection("workers")?.doc(id);
-
-    const workerSnapshot = await workerRef.get();
-    if (!workerSnapshot.exists) {
-      console.log(`Worker with ID: ${id} does not exist.`);
-      return false;
-    }
+    const { docRef: workerRef } = await getDocument("workers", id);
 
     await workerRef.delete();
     console.log(`Worker with ID: ${id} updated successfully!`);

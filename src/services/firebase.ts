@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
+import { config } from "dotenv";
 
-require("dotenv").config();
+config();
 
 const serviceAccount = {
   type: process.env.FIREBASE_TYPE,
