@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../services/firebase";
-import { Booking, BookingInfo, CategorizedBookings } from "../types/booking";
+import { Booking, CategorizedBookings } from "../types/booking";
 import {
   validateBooking,
   validateBookingUpdate,
@@ -8,49 +8,44 @@ import {
 import { CustomError } from "../errors";
 import { getLocationNameFromCoordinates } from "../services/googleMapsService";
 
+// Helper function to get a document
+async function getDocument(collection: string, id: string) {
+  const docRef = db?.collection(collection)?.doc(id);
+  const doc = await docRef.get();
+
+  if (!doc.exists) {
+    throw new CustomError(
+      `Document with ID: ${id} does not exist in ${collection}.`,
+      404
+    );
+  }
+
+  return { doc, docRef };
+}
+
 // Create a new booking
 export const createBooking = async (bookingData: Booking): Promise<Booking> => {
   try {
     validateBooking(bookingData);
+
     const locationName = await getLocationNameFromCoordinates(
       bookingData?.location?.latitude,
       bookingData?.location?.longitude
     );
 
     // Fetch associated worker, subservice, and service
-    const workerRef = db?.collection("workers")?.doc(bookingData?.workerId);
-    const worker = await workerRef.get();
-
-    if (!worker.exists) {
-      throw new CustomError(
-        `Worker with ID: ${bookingData?.workerId} does not exist.`,
-        404
-      );
-    }
-
-    const subserviceRef = db
-      ?.collection("subservices")
-      ?.doc(bookingData?.subserviceId);
-    const subservice = await subserviceRef.get();
-
-    if (!subservice.exists) {
-      throw new CustomError(
-        `Subservice with ID: ${bookingData?.subserviceId} does not exist.`,
-        404
-      );
-    }
-
-    const serviceRef = db
-      ?.collection("services")
-      ?.doc(subservice?.data()?.serviceId);
-    const service = await serviceRef.get();
-
-    if (!service.exists) {
-      throw new CustomError(
-        `Service with ID: ${subservice?.data()?.serviceId} does not exist.`,
-        404
-      );
-    }
+    const { doc: worker, docRef: workerRef } = await getDocument(
+      "workers",
+      bookingData?.workerId
+    );
+    const { doc: subservice } = await getDocument(
+      "subservices",
+      bookingData?.subserviceId
+    );
+    const { doc: service } = await getDocument(
+      "services",
+      subservice?.data()?.serviceId
+    );
 
     let booking: Booking = {
       ...bookingData,
@@ -98,56 +93,39 @@ export const getBookings = async (
   workerId?: string
 ): Promise<string[] | CategorizedBookings> => {
   try {
-    let query: FirebaseFirestore.Query = db?.collection("bookings");
-
-    // Filter bookings by clientId, workerId, if provided
-    if (clientId) query = query?.where("clientId", "==", clientId);
-    if (workerId) query = query?.where("workerId", "==", workerId);
-
-    query = query?.orderBy("dateTime", "asc");
-
-    // Map booking documents to BookingInfo objects
-    const mapBookingToInfo = (
-      booking: FirebaseFirestore.QueryDocumentSnapshot
-    ): BookingInfo | undefined => {
-      const bookingData = booking.data() as Booking;
-      return {
-        id: bookingData?.id,
-        workerName: bookingData?.workerName,
-        serviceName: bookingData?.serviceName,
-        subserviceName: bookingData?.subserviceName,
-        serviceAvatar: bookingData?.serviceAvatar,
-        locationName: bookingData?.locationName,
-        dateTime: bookingData?.dateTime,
-        ratePerUnit: bookingData?.ratePerUnit,
-        unit: bookingData?.unit,
-        status: bookingData?.status,
-      };
+    // Filter bookings by status
+    const filterBookingsByStatus = (bookings: Booking[], status: string) => {
+      return bookings.filter((booking) => booking.status === status);
     };
 
-    const querySnapshot = await query.get();
-    const bookings = querySnapshot.docs.map(mapBookingToInfo).filter(Boolean);
-
-    // Type guard for BookingInfo
-    const isBookingInfo = (
-      item: BookingInfo | undefined
-    ): item is BookingInfo => {
-      return !!item;
-    };
-
-    if (clientId || workerId) {
-      const currentBookings: BookingInfo[] = bookings
-        .filter(
-          (booking) =>
-            booking?.status === "Pending" || booking?.status === "Not Completed"
-        )
-        .filter(isBookingInfo);
-
-      const pastBookings: BookingInfo[] = bookings
-        .filter((booking) => booking?.status === "Completed")
-        .filter(isBookingInfo);
+    // Categorize bookings into current and past
+    const categorizeBookings = (bookings: Booking[]) => {
+      const currentBookings = filterBookingsByStatus(
+        bookings,
+        "Pending"
+      ).concat(filterBookingsByStatus(bookings, "Not Completed"));
+      const pastBookings = filterBookingsByStatus(bookings, "Completed");
 
       return { currentBookings, pastBookings };
+    };
+
+    let query: FirebaseFirestore.Query = db.collection("bookings");
+
+    // Filter bookings by clientId, workerId, if provided
+    if (clientId) query = query.where("clientId", "==", clientId);
+    if (workerId) query = query.where("workerId", "==", workerId);
+
+    query = query.orderBy("dateTime", "asc");
+
+    const querySnapshot = await query.get();
+
+    // Map booking documents to BookingInfo objects
+    const bookings = querySnapshot.docs
+      .map((booking) => booking.data() as Booking)
+      .filter(Boolean);
+
+    if (clientId || workerId) {
+      return categorizeBookings(bookings);
     } else {
       return querySnapshot.docs.map((booking) => booking.id);
     }
@@ -160,9 +138,7 @@ export const getBookings = async (
 // Get a booking by ID
 export const getBookingById = async (id: string): Promise<Booking> => {
   try {
-    const bookingRef = db?.collection("bookings")?.doc(id);
-    const booking = await bookingRef.get();
-
+    const { doc: booking } = await getDocument("bookings", id);
     return booking?.data() as Booking;
   } catch (error) {
     console.error("Error getting booking:", error);
@@ -199,23 +175,25 @@ export const updateBookingById = async (
 export const deleteBookingById = async (id: string): Promise<boolean> => {
   try {
     const result = await db?.runTransaction(async (transaction) => {
-      const bookingRef = db?.collection("bookings")?.doc(id);
-
-      const booking = await bookingRef.get();
-      if (!booking.exists) {
+      const { doc: booking, docRef: bookingRef } = await getDocument(
+        "bookings",
+        id
+      );
+      if (!booking) {
         console.log(`Booking with ID: ${id} does not exist.`);
         return false;
       }
 
       // Update availability status and waiting list of worker
-      const workerRef = db
-        ?.collection("workers")
-        ?.doc(booking?.data()?.workerId);
-      const worker = await workerRef.get();
+      const workerId = booking?.data()?.workerId;
+      const { doc: worker, docRef: workerRef } = await getDocument(
+        "workers",
+        workerId
+      );
 
-      if (!worker.exists) {
+      if (!worker) {
         throw new CustomError(
-          `Worker with ID: ${booking?.data()?.workerId} does not exist.`,
+          `Worker with ID: ${workerId} does not exist.`,
           404
         );
       }
