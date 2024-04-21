@@ -2,6 +2,7 @@ import { Location, Timestamps } from "./global";
 import { User, UserBasicInfo } from "./user";
 
 export interface Worker extends User {
+  summary: string;
   available: boolean;
   serviceIds: string[];
   subserviceIds: string[];

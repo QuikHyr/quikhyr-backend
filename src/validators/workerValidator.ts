@@ -20,6 +20,7 @@ const requiredFields: (keyof Worker)[] = [
   "gender",
   "location",
   "pincode",
+  "summary",
   "available",
   "isVerified",
   "isActive",
@@ -47,6 +48,7 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "email":
     case "phone":
     case "pincode":
+    case "summary":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }
