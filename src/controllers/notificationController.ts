@@ -47,6 +47,8 @@ export const createImmediateWorkAlert = async (
 
       let workAlert: ImmediateWorkAlert = {
         ...immediateWorkAlertData,
+        id: notificationRef?.id,
+        type: "work-alert",
         workAlertId: notificationRef?.id,
         locationName: locationName ?? "",
         timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
@@ -150,6 +152,8 @@ export const createImmediateWorkApprovalRequest = async (
 
       const workApprovalRequest: ImmediateWorkApprovalRequest = {
         ...immediateWorkApprovalRequestData,
+        id: notificationRef?.id,
+        type: "work-approval-request",
         workApprovalRequestId: notificationRef?.id,
         timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
       };

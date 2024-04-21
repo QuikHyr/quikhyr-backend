@@ -2,9 +2,11 @@ import { Timestamp } from "firebase-admin/firestore";
 import { Location, Timestamps } from "./global";
 
 export interface Notification {
+  id: string;
   senderId: string;
   receiverIds: string[];
   timestamps: Timestamps;
+  type: "work-alert" | "work-approval-request" | "general";
 }
 
 export interface ImmediateWorkAlert extends Notification {
