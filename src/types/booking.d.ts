@@ -11,6 +11,7 @@ export interface Booking {
   clientId: string;
   workerId: string;
   subserviceId: string;
+  clientName: string;
   workerName: string;
   serviceName: string;
   subserviceName: string;

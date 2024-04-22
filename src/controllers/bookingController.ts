@@ -53,6 +53,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
         new Date(bookingData?.dateTime as string).getTime()
       ),
       locationName: locationName ?? "",
+      clientName: worker?.data()?.name,
       workerName: worker?.data()?.name,
       serviceName: service?.data()?.name,
       subserviceName: subservice?.data()?.name,
