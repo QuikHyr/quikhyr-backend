@@ -11,19 +11,9 @@ import {
   getLocationNameFromPincode,
 } from "../services/googleMapsService";
 
-// Helper function to get a document and its reference
+// Helper function to get a document reference
 async function getDocument(collection: string, id: string) {
-  const docRef = db?.collection(collection)?.doc(id);
-  const doc = await docRef.get();
-
-  if (!doc.exists) {
-    throw new CustomError(
-      `Document with ID: ${id} does not exist in ${collection}.`,
-      404
-    );
-  }
-
-  return { doc, docRef };
+  return db?.collection(collection)?.doc(id);
 }
 
 // Create a new worker
@@ -37,7 +27,7 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
         workerData?.location?.longitude
       )) ?? (await getLocationNameFromPincode(workerData?.pincode));
 
-    const { docRef: workerRef } = await getDocument("workers", workerData?.id);
+    const workerRef = await db?.collection("workers")?.doc(workerData?.id);
 
     const worker: Worker = {
       ...workerData,
@@ -91,7 +81,8 @@ export const getWorkers = async (
 // Get a worker by ID
 export const getWorkerById = async (id: string): Promise<Worker> => {
   try {
-    const { doc: worker } = await getDocument("workers", id);
+    const workerRef = await getDocument("workers", id);
+    const worker = await workerRef.get();
 
     return worker?.data() as Worker;
   } catch (error) {
@@ -116,10 +107,11 @@ export const getMostRatedWorkersBasicInfo = async (): Promise<
         const subserviceName = doc?.data().subserviceName;
         const workerId = doc?.data()?.workerId;
 
-        const workerDoc = await db?.collection("workers")?.doc(workerId)?.get();
+        const workerRef = await getDocument("workers", workerId);
+        const worker = await workerRef?.get();
 
-        if (workerDoc?.exists) {
-          const workerData = workerDoc.data();
+        if (worker?.exists) {
+          const workerData = worker.data();
           const name = workerData?.name;
           const avatar = workerData?.avatar;
           const pincode = workerData?.pincode;
@@ -170,7 +162,7 @@ export const updateWorkerById = async (
       );
     }
 
-    const { docRef: workerRef } = await getDocument("workers", id);
+    const workerRef = await getDocument("workers", id);
 
     await workerRef.update({
       ...workerData,
@@ -189,7 +181,7 @@ export const updateWorkerById = async (
 // Delete a worker by ID
 export const deleteWorkerById = async (id: string): Promise<boolean> => {
   try {
-    const { docRef: workerRef } = await getDocument("workers", id);
+    const workerRef = await getDocument("workers", id);
 
     await workerRef.delete();
     console.log(`Worker with ID: ${id} updated successfully!`);
