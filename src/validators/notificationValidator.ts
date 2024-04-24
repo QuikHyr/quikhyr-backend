@@ -126,6 +126,7 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "locationName":
     case "workAlertId":
     case "workApprovalRequestId":
+    case "dateTime":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }
@@ -152,18 +153,6 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "ratePerUnit":
       if (typeof value !== "number") {
         throw new NumberFieldError(field);
-      }
-      break;
-
-    case "dateTime":
-      if (
-        typeof value !== "string" ||
-        typeof value !== "number" ||
-        isNaN(new Date(value).getTime())
-      ) {
-        throw new Error(
-          `Field '${field}' must be either a string or a number which represents date and time.`
-        );
       }
       break;
   }

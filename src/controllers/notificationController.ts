@@ -164,8 +164,6 @@ export const createImmediateWorkApprovalRequest = async (
         .doc(workApprovalRequest?.receiverIds[0])
         .get();
 
-      console.log(client?.data()?.fcmToken);
-
       const message = {
         notification: {
           title: "Immediate Work Approval Request Received",
