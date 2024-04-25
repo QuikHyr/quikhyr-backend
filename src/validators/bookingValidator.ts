@@ -44,7 +44,7 @@ const validateTypes: ValidationFunction = (field, value) => {
     case "workerId":
     case "subserviceId":
     case "unit":
-      case "dateTime":
+    case "dateTime":
       if (typeof value !== "string") {
         throw new StringFieldError(field);
       }

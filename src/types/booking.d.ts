@@ -17,7 +17,7 @@ export interface Booking {
   subserviceName: string;
   serviceAvatar: string;
   locationName: string;
-  dateTime: Timestamp | string;
+  dateTime: string;
   ratePerUnit: number;
   unit: string;
   status: "Pending" | "Completed" | "Not Completed";

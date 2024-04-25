@@ -49,9 +49,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
 
     let booking: Booking = {
       ...bookingData,
-      dateTime: Timestamp.fromMillis(
-        new Date(bookingData?.dateTime as string).getTime()
-      ),
+      dateTime: bookingData?.dateTime,
       locationName: locationName ?? "",
       clientName: worker?.data()?.name,
       workerName: worker?.data()?.name,
