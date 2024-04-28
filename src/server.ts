@@ -1,16 +1,17 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
-import { errorHandler } from "./middlewares/errorHandler";
 import { config } from "dotenv";
 
-import clientRouter from "./routes/clientRoute";
-import workerRouter from "./routes/workerRoute";
-import subserviceRouter from "./routes/subserviceRoute";
-import serviceRouter from "./routes/serviceRoute";
-import bookingRouter from "./routes/bookingRoute";
-import ratingRouter from "./routes/ratingRoute";
-import notificationRouter from "./routes/notificationRoute";
-import locationRouter from "./routes/locationRoute";
+import { errorHandler } from "./errors";
+
+import clientRouter from "./modules/user/client/client.route";
+import workerRouter from "./modules/user/worker/worker.route";
+import subserviceRouter from "./modules/subservice/subservice.route";
+import serviceRouter from "./modules/service/service.route";
+import bookingRouter from "./modules/booking/booking.route";
+import ratingRouter from "./modules/rating/rating.route";
+import notificationRouter from "./modules/notification/notification.route";
+import locationRouter from "./services/google-maps/location.route";
 
 config();
 
