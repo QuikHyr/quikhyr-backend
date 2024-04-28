@@ -46,7 +46,7 @@ export const createBooking = async (bookingData: Booking): Promise<Booking> => {
 
     let booking: Booking = {
       ...bookingData,
-      dateTime: bookingData?.dateTime,
+      dateTime: Timestamp?.fromDate(new Date(bookingData?.dateTime as string)),
       locationName: locationName ?? "",
       clientName: worker?.data()?.name,
       workerName: worker?.data()?.name,

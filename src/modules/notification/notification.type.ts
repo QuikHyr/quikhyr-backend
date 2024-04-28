@@ -24,7 +24,7 @@ export interface ImmediateWorkAlertRejection extends Notification {
 
 export interface ImmediateWorkApprovalRequest extends ImmediateWorkAlert {
   workApprovalRequestId: string;
-  dateTime: string;
+  dateTime: string | Timestamp;
   ratePerUnit: number;
   unit: string;
 }

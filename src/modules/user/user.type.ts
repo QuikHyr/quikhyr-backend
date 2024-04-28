@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase-admin/firestore";
 import { Location, Timestamps } from "../../global";
 
 export interface User {

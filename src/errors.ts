@@ -70,3 +70,10 @@ export class BooleanFieldError extends ValidationError {
     this.name = "BooleanFieldError";
   }
 }
+
+export class ISO8601StringError extends ValidationError {
+  constructor(field: string) {
+    super(`Field '${field}' must be in ISO 8601 string format.`);
+    this.name = "ISO8601StringError";
+  }
+}

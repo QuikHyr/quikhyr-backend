@@ -1,4 +1,3 @@
-import { Location, Timestamps } from "../../../global";
 import { User, UserBasicInfo } from "../user.type";
 
 export interface Worker extends User {

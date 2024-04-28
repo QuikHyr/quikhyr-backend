@@ -17,10 +17,11 @@ export interface Booking {
   subserviceName: string;
   serviceAvatar: string;
   locationName: string;
-  dateTime: string;
+  dateTime: string | Timestamp;
   ratePerUnit: number;
   unit: string;
   status: "Pending" | "Completed" | "Not Completed";
+  isRated: boolean;
   location: Location;
   timestamps: Timestamps;
 }

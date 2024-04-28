@@ -1,5 +1,3 @@
-import { Timestamps } from "../../global";
-
 export interface Subservice {
   id: string;
   serviceId: string;
