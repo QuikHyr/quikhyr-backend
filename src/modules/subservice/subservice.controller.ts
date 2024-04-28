@@ -28,11 +28,18 @@ export const createSubservice = async (
   try {
     validateSubservice(subserviceData);
 
-    const subserviceRef = db?.collection("subservices")?.doc();
+    const subserviceRef = await db?.collection("subservices")?.doc();
+    const serviceRef = await db
+      ?.collection("services")
+      ?.doc(subserviceData?.serviceId)
+      ?.get();
+    const service = serviceRef?.data();
 
     const subservice: Subservice = {
       ...subserviceData,
       id: subserviceRef?.id,
+      serviceName: service?.name,
+      serviceAvatar: service?.avatar,
     };
 
     await subserviceRef.set(subservice);

@@ -164,8 +164,6 @@ export const createImmediateWorkApprovalRequest = async (
         .doc(workApprovalRequest?.receiverIds[0])
         .get();
 
-      console.log(client?.data()?.fcmToken);
-
       const message = {
         notification: {
           title: "Immediate Work Approval Request Received",
@@ -213,14 +211,11 @@ export const createImmediateWorkConfirmation = async (
       clientId: immediateWorkConfirmationData?.senderId,
       workerId: immediateWorkConfirmationData?.receiverIds[0],
       subserviceId: immediateWorkConfirmationData?.subserviceId,
-      dateTime: Timestamp.fromMillis(
-        new Date(immediateWorkConfirmationData?.dateTime as string).getTime()
-      ),
+      dateTime: immediateWorkConfirmationData?.dateTime,
       ratePerUnit: immediateWorkConfirmationData?.ratePerUnit,
       unit: immediateWorkConfirmationData?.unit,
       status: "Pending",
       location: immediateWorkConfirmationData?.location,
-      locationName: immediateWorkConfirmationData?.locationName,
     };
 
     await createBooking(bookingData as Booking);
