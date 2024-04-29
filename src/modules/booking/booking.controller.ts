@@ -161,6 +161,33 @@ export const getBookingById = async (id: string): Promise<Booking> => {
   }
 };
 
+// Check whether the client has an unrated completed work
+export const unratedCompletedWork = async (
+  clientId: string
+): Promise<Booking> => {
+  try {
+    const bookings = await db
+      ?.collection("bookings")
+      ?.where("clientId", "==", clientId)
+      ?.where("status", "==", "Completed")
+      ?.where("hasRated", "==", false)
+      ?.get();
+
+    if (bookings?.empty) {
+      console.log("No unrated completed work found!");
+      return {} as Booking;
+    } else {
+      return bookings.docs.map((booking) => booking.data() as Booking)[0];
+    }
+  } catch (error) {
+    console.error(
+      "Error checking unrated completed work:",
+      error
+    );
+    throw new CustomError(`${error}`, 400);
+  }
+};
+
 // Update a booking by ID
 export const updateBookingById = async (
   id: string,

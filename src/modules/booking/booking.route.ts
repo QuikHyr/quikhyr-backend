@@ -4,6 +4,7 @@ import {
   deleteBookingById,
   getBookingById,
   getBookings,
+  unratedCompletedWork,
   updateBookingById,
 } from "./booking.controller";
 
@@ -62,6 +63,17 @@ bookingRouter.get("/:id", async (req, res, next) => {
     } else {
       res.status(404).send("Booking not found!");
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Check whether the client has an unrated completed work
+bookingRouter.get("/unrated-completed-work/:clientId", async (req, res, next) => {
+  try {
+    const ratingStatus = await unratedCompletedWork(req?.params?.clientId);
+
+    return res.status(200).json(ratingStatus);
   } catch (error) {
     next(error);
   }

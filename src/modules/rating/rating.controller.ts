@@ -57,7 +57,7 @@ function calculateOverallRating(ratings: Ratings): number {
     }
   }
 
-  return weightedRatingSum / totalWeight;
+  return parseFloat((weightedRatingSum / totalWeight).toFixed(2));
 }
 
 // Create a new rating
