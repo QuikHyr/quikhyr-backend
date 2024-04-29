@@ -21,7 +21,7 @@ export interface Booking {
   ratePerUnit: number;
   unit: string;
   status: "Pending" | "Completed" | "Not Completed";
-  isRated: boolean;
+  hasRated: boolean;
   location: Location;
   timestamps: Timestamps;
 }

@@ -45,6 +45,13 @@ export const createImmediateWorkAlert = async (
 
       const querySnapshot = await t.get(query);
 
+      // Fetch senderName
+      const senderSnapshot = await db
+        .collection("clients")
+        .doc(immediateWorkAlertData?.senderId)
+        .get();
+      let senderName = senderSnapshot?.data()?.name;
+
       let workAlert: ImmediateWorkAlert = {
         ...immediateWorkAlertData,
         id: notificationRef?.id,
@@ -53,6 +60,7 @@ export const createImmediateWorkAlert = async (
         locationName: locationName ?? "",
         timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
       };
+
       const workerIds: string[] = [];
 
       // Send FCM notifications to each worker within the transaction
@@ -60,7 +68,7 @@ export const createImmediateWorkAlert = async (
         const message = {
           notification: {
             title: "Immediate Work Alert",
-            body: "You have a new work alert.",
+            body: `You have a new work alert from ${senderName}.`,
           },
           data: {
             workAlert: JSON.stringify(workAlert),
@@ -150,6 +158,13 @@ export const createImmediateWorkApprovalRequest = async (
     const transaction = db.runTransaction(async (t) => {
       const notificationRef = db.collection("notifications").doc();
 
+      // Fetch senderName
+      const senderSnapshot = await db
+        .collection("workers")
+        .doc(immediateWorkApprovalRequestData?.senderId)
+        .get();
+      let senderName = senderSnapshot?.data()?.name;
+
       const workApprovalRequest: ImmediateWorkApprovalRequest = {
         ...immediateWorkApprovalRequestData,
         id: notificationRef?.id,
@@ -166,8 +181,8 @@ export const createImmediateWorkApprovalRequest = async (
 
       const message = {
         notification: {
-          title: "Immediate Work Approval Request Received",
-          body: "You have a new work approval request.",
+          title: "Immediate Work Approval Request",
+          body: `You have a new work approval request from ${senderName}.`,
         },
         data: {
           workApprovalRequest: JSON.stringify(workApprovalRequest),
@@ -206,17 +221,38 @@ export const createImmediateWorkConfirmation = async (
   try {
     validateImmediateWorkConfirmation(immediateWorkConfirmationData);
 
+    // Delete associated Immediate Work Approval Request and Immediate Work Alert
+    const workApprovalRequestRef = await db
+      ?.collection("notifications")
+      ?.doc(immediateWorkConfirmationData?.workApprovalRequestId);
+
+    const workAlertRef = await db
+      ?.collection("notifications")
+      ?.doc(immediateWorkConfirmationData?.workAlertId);
+
+    const workApprovalRequestSnapshot = await workApprovalRequestRef.get();
+    const workAlertSnapshot = await workAlertRef.get();
+
+    if (workApprovalRequestSnapshot.exists && workAlertSnapshot.exists) {
+      await workApprovalRequestRef.delete();
+      await workAlertRef.delete();
+    } else {
+      throw new CustomError(
+        "No associated Immediate Work Approval Request or Work Alert found!",
+        404
+      );
+    }
+
     // Create a new booking
     const bookingData: Partial<Booking> = {
       clientId: immediateWorkConfirmationData?.senderId,
       workerId: immediateWorkConfirmationData?.receiverIds[0],
       subserviceId: immediateWorkConfirmationData?.subserviceId,
-      dateTime: Timestamp?.fromDate(
-        new Date(immediateWorkConfirmationData?.dateTime as string)
-      ),
+      dateTime: immediateWorkConfirmationData?.dateTime,
       ratePerUnit: immediateWorkConfirmationData?.ratePerUnit,
       unit: immediateWorkConfirmationData?.unit,
       status: "Pending",
+      hasRated: false,
       location: immediateWorkConfirmationData?.location,
     };
 
@@ -229,10 +265,17 @@ export const createImmediateWorkConfirmation = async (
         .doc(immediateWorkConfirmationData?.receiverIds[0])
         .get();
 
+      // Fetch senderName
+      const senderSnapshot = await db
+        .collection("clients")
+        .doc(immediateWorkConfirmationData?.senderId)
+        .get();
+      let senderName = senderSnapshot?.data()?.name;
+
       const message = {
         notification: {
-          title: "Immediate Work Confirmation Received",
-          body: "You have a new work confirmation.",
+          title: "Immediate Work Confirmation",
+          body: `You have a new work confirmation from ${senderName}.`,
         },
         data: {
           workConfirmation: JSON.stringify(immediateWorkConfirmationData),
@@ -247,22 +290,6 @@ export const createImmediateWorkConfirmation = async (
         console.error("Error sending message:", error);
         throw new CustomError(`${error}`, 400);
       }
-
-      // Delete associated Immediate Work Approval Request and Immediate Work Alert
-      const workApprovalRequestRef = db
-        ?.collection("notifications")
-        ?.doc(immediateWorkConfirmationData?.workApprovalRequestId);
-
-      const workAlertRef = db
-        ?.collection("notifications")
-        ?.doc(immediateWorkConfirmationData?.workAlertId);
-
-      await workApprovalRequestRef.delete();
-      await workAlertRef.delete();
-
-      console.log(
-        "Associated Immediate Work Approval Request and Work Alert deleted."
-      );
 
       return immediateWorkConfirmationData;
     });
@@ -295,10 +322,17 @@ export const createImmediateWorkRejection = async (
         .doc(immediateWorkRejectionData?.receiverIds[0])
         .get();
 
+      // Fetch senderName
+      const senderSnapshot = await db
+        .collection("clients")
+        .doc(immediateWorkRejectionData?.senderId)
+        .get();
+      let senderName = senderSnapshot?.data()?.name;
+
       const message = {
         notification: {
-          title: "Immediate Work Rejection Received",
-          body: "You have a new work rejection.",
+          title: "Immediate Work Rejection",
+          body: `You have a new work rejection from ${senderName}.`,
         },
         data: {
           workRejection: JSON.stringify(immediateWorkRejectionData),

@@ -55,14 +55,14 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
     await ratingRef.set(rating);
     console.log("Rating created successfully!");
 
-    // Set isRated to true in associated booking
+    // Set hasRated to true in associated booking
     const { docRef: bookingRef } = await getDocument(
       "bookings",
       ratingData?.bookingId
     );
 
     await bookingRef.update({
-      isRated: true,
+      hasRated: true,
       timestamps: {
         updatedAt: Timestamp.now(),
       },

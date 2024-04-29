@@ -21,7 +21,7 @@ const requiredFields: BookingField[] = [
   "ratePerUnit",
   "unit",
   "status",
-  "isRated",
+  "hasRated",
   "location",
 ];
 
@@ -59,7 +59,7 @@ const validateTypes: ValidationFunction = (field, value) => {
       }
       break;
 
-    case "isRated":
+    case "hasRated":
       if (typeof value !== "boolean") {
         throw new BooleanFieldError(field);
       }

@@ -23,7 +23,7 @@ async function getDocument(collection: string, id: string) {
 // Create a new booking
 export const createBooking = async (bookingData: Booking): Promise<Booking> => {
   try {
-    validateBooking(bookingData);
+    await validateBooking(bookingData);
 
     const locationName = await getLocationNameFromCoordinates(
       bookingData?.location?.latitude,
@@ -117,7 +117,15 @@ export const getBookings = async (
 
     // Map booking documents to BookingInfo objects
     const bookings = querySnapshot.docs
-      .map((booking) => booking.data() as Booking)
+      .map((booking) => {
+        let bookingData = booking.data();
+        bookingData = {
+          ...bookingData,
+          dateTime: bookingData.dateTime.toDate().toISOString(),
+        };
+
+        return bookingData as Booking;
+      })
       .filter(Boolean);
 
     if (clientId || workerId) {
@@ -135,7 +143,18 @@ export const getBookings = async (
 export const getBookingById = async (id: string): Promise<Booking> => {
   try {
     const { doc: booking } = await getDocument("bookings", id);
-    return booking?.data() as Booking;
+
+    let bookingData = booking?.data() as Booking;
+
+    // Convert dateTime from timestamp to ISO8601 string
+    const dateTime = bookingData?.dateTime as Timestamp;
+
+    bookingData = {
+      ...bookingData,
+      dateTime: dateTime.toDate().toISOString(),
+    };
+
+    return bookingData;
   } catch (error) {
     console.error("Error getting booking:", error);
     throw new CustomError(`${error}`, 400);
