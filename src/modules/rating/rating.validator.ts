@@ -57,7 +57,7 @@ const validateTypes: ValidationFunction = (field, value) => {
           typeof criteria?.feedback !== "string"
         ) {
           throw new Error(
-            `Field '${ratingCriteria}' must be an object with rating as a number and feedback as a string.`
+            `Field '${ratingCriteria}' is required and it must be an object with rating as a number and feedback as a string.`
           );
         }
       });
@@ -67,6 +67,15 @@ const validateTypes: ValidationFunction = (field, value) => {
       if (typeof value !== "object") {
         throw new Error(`Field '${field}' must be an object.`);
       }
+      if (
+        typeof value?.rating !== "number" ||
+        typeof value?.feedback !== "string"
+      ) {
+        throw new Error(
+          `Field '${field}' must be an object with rating as a number and feedback as a string.`
+        );
+      }
+
 
       if (
         typeof value?.rating !== "number" ||
@@ -91,6 +100,15 @@ export const validateRating = (ratingData: Partial<Rating>): void => {
       throw new RequiredFieldError(field);
     }
   });
+
+  // Check whether ratingData has either of the optional fields
+  if (
+    !Object.keys(ratingData).some((field) =>
+      optionalFields.includes(field as keyof Rating)
+    )
+  ) {
+    throw new Error("Either field 'ratings' or 'overallRating' is required.");
+  }
 
   validateRatingUpdate(ratingData);
 };

@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { db } from "../../services/firebase";
-import { Rating } from "./rating.type";
+import { Rating, Ratings } from "./rating.type";
 import { CustomError } from "../../errors";
 import { validateRating, validateRatingUpdate } from "./rating.validator";
 
@@ -19,29 +19,70 @@ async function getDocument(collection: string, id: string) {
   return { doc, docRef };
 }
 
+// Helper function to calculate weighted average rating
+function calculateOverallRating(ratings: Ratings): number {
+  const weights: { [key: string]: number } = {
+    quality: 0.2,
+    efficiency: 0.15,
+    reliability: 0.25,
+    knowledge: 0.2,
+    value: 0.2,
+  };
+
+  let totalWeight = 0;
+  let weightedRatingSum = 0;
+  let missingCriteria: string[] = [];
+
+  for (let criteria in weights) {
+    if (ratings[criteria as keyof Ratings]) {
+      totalWeight += weights[criteria];
+      weightedRatingSum +=
+        weights[criteria] * (ratings[criteria as keyof Ratings]?.rating ?? 0);
+    } else {
+      missingCriteria.push(criteria);
+    }
+  }
+
+  if (missingCriteria.length > 0) {
+    const redistributedWeight =
+      missingCriteria.reduce((sum, criteria) => sum + weights[criteria], 0) /
+      (Object.keys(weights).length - missingCriteria.length);
+    for (let criteria in weights) {
+      if (!missingCriteria.includes(criteria)) {
+        totalWeight += redistributedWeight;
+        weightedRatingSum +=
+          redistributedWeight *
+          (ratings[criteria as keyof Ratings]?.rating ?? 0);
+      }
+    }
+  }
+
+  return weightedRatingSum / totalWeight;
+}
+
 // Create a new rating
 export const createRating = async (ratingData: Rating): Promise<Rating> => {
   try {
     validateRating(ratingData);
 
-    const { docRef: ratingRef } = await getDocument("ratings", "");
+    const ratingRef = await db?.collection("ratings")?.doc();
 
-    let weightedAvgRating = 0;
     let rating = {};
 
     if (ratingData?.ratings) {
-      weightedAvgRating =
-        (ratingData?.ratings?.quality?.rating || 0) * 0.2 +
-        (ratingData?.ratings?.efficiency?.rating || 0) * 0.15 +
-        (ratingData?.ratings?.reliability?.rating || 0) * 0.25 +
-        (ratingData?.ratings?.knowledge?.rating || 0) * 0.2 +
-        (ratingData?.ratings?.value?.rating || 0) * 0.2;
+      const calculatedRating: number = await calculateOverallRating(
+        ratingData?.ratings
+      );
 
       rating = {
         ...ratingData,
         overallRating: {
-          rating: weightedAvgRating,
-          feedback: ratingData?.overallRating?.feedback || "",
+          rating: calculatedRating,
+          feedback:
+            ratingData?.overallRating?.feedback ||
+            Object.values(ratingData?.ratings || {})
+              .map((criteria) => criteria.feedback)
+              .join("\n"),
         },
         timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
       };
