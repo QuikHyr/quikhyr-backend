@@ -28,6 +28,7 @@ export const createWorker = async (workerData: Worker): Promise<Worker> => {
 
     const worker: Worker = {
       ...workerData,
+      rating: 0,
       locationName: locationName ?? "",
       timestamps: { createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
     };

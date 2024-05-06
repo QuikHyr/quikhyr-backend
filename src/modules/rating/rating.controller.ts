@@ -69,10 +69,10 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
 
     let rating = {};
 
+    let calculatedRating: number = 0;
+
     if (ratingData?.ratings) {
-      const calculatedRating: number = await calculateOverallRating(
-        ratingData?.ratings
-      );
+      calculatedRating = await calculateOverallRating(ratingData?.ratings);
 
       rating = {
         ...ratingData,
@@ -93,8 +93,19 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
       };
     }
 
+    // Create the new rating
     await ratingRef.set(rating);
     console.log("Rating created successfully!");
+
+    // Update associated worker's rating
+    const { docRef: workerRef } = await getDocument(
+      "workers",
+      ratingData?.workerId
+    );
+    await workerRef.update({
+      rating: ratingData?.overallRating?.rating ?? calculatedRating,
+    });
+    console.log("Worker's rating updated successfully!");
 
     // Set hasRated to true in associated booking
     const { docRef: bookingRef } = await getDocument(
