@@ -180,10 +180,7 @@ export const unratedCompletedWork = async (
       return bookings.docs.map((booking) => booking.data() as Booking)[0];
     }
   } catch (error) {
-    console.error(
-      "Error checking unrated completed work:",
-      error
-    );
+    console.error("Error checking unrated completed work:", error);
     throw new CustomError(`${error}`, 400);
   }
 };
@@ -205,6 +202,37 @@ export const updateBookingById = async (
       },
     });
     console.log(`Booking with ID: ${id} updated successfully!`);
+
+    if (bookingData?.status === "Completed") {
+      const { doc: booking, docRef: bookingRef } = await getDocument(
+        "bookings",
+        id
+      );
+      const workerId = booking?.data()?.workerId;
+      const { doc: worker, docRef: workerRef } = await getDocument(
+        "workers",
+        workerId
+      );
+
+      const waitingList = worker?.data()?.waitingList;
+
+      await db?.runTransaction(async (transaction) => {
+        transaction.update(workerRef, {
+          waitingList: waitingList - 1,
+          available: waitingList === 1 ? true : false,
+        });
+
+        transaction.update(bookingRef, {
+          timestamps: {
+            updatedAt: Timestamp.now(),
+          },
+        });
+      });
+
+      console.log(
+        `Availability status and waiting list of associated worker updated successfully!`
+      );
+    }
 
     return bookingData;
   } catch (error) {
