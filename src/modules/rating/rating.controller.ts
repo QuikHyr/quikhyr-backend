@@ -102,9 +102,32 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
       "workers",
       ratingData?.workerId
     );
-    await workerRef.update({
-      rating: ratingData?.overallRating?.rating ?? calculatedRating,
-    });
+
+    const worker = await workerRef.get();
+    const workerData = worker.data();
+
+    const newRating = ratingData?.overallRating?.rating ?? calculatedRating;
+
+    if (
+      workerData?.totalRatings === 0 ||
+      workerData?.totalRatings === undefined
+    ) {
+      await workerRef.update({
+        rating: newRating,
+        totalRatings: 1,
+      });
+    } else {
+      const updatedTotalRatings = workerData?.totalRatings + 1;
+
+      const updatedRating =
+        (workerData?.rating * workerData?.totalRatings + newRating) /
+        updatedTotalRatings;
+      await workerRef.update({
+        rating: updatedRating,
+        totalRatings: updatedTotalRatings,
+      });
+    }
+
     console.log("Worker's rating updated successfully!");
 
     // Set hasRated to true in associated booking

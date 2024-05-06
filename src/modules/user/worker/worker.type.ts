@@ -6,6 +6,7 @@ export interface Worker extends User {
   serviceIds: string[];
   subserviceIds: string[];
   rating: number;
+  totalRatings: number;
 }
 
 export interface WorkerBasicInfo extends UserBasicInfo {
