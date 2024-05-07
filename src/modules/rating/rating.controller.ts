@@ -113,7 +113,7 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
       workerData?.totalRatings === undefined
     ) {
       await workerRef.update({
-        rating: newRating,
+        rating: parseFloat(newRating.toFixed(2)),
         totalRatings: 1,
       });
     } else {
@@ -123,7 +123,7 @@ export const createRating = async (ratingData: Rating): Promise<Rating> => {
         (workerData?.rating * workerData?.totalRatings + newRating) /
         updatedTotalRatings;
       await workerRef.update({
-        rating: updatedRating,
+        rating: parseFloat(updatedRating.toFixed(2)),
         totalRatings: updatedTotalRatings,
       });
     }
